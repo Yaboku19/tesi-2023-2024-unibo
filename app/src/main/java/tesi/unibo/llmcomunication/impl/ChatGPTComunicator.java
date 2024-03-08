@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 public class ChatGPTComunicator implements Comunicator {
     private static final String URL = "https://api.openai.com/v1/chat/completions";
-    private final static String KEY = "";
+    private static final String KEY = "";
 
     @Override
     public String generateCode(final String question) {
