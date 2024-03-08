@@ -13,7 +13,7 @@ public class BasicController implements Controller {
 
     @Override
     public void play() {
-        System.out.println(comunicator.generateCode("Chi sei?"));
+        System.out.println(comunicator.generateCode("ho fame"));
     }
     
 }
