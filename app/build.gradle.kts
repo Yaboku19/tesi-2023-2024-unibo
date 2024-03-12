@@ -17,17 +17,14 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-
-
-    // This dependency is used by the application.
+    // Dipendenze di implementazione (main)
     implementation("com.google.guava:guava:31.1-jre")
-
     implementation("org.json:json:20220924")
 
-
+    // Dipendenze di test
+    implementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+    implementation("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    implementation("junit:junit:4.12")
 }
 
 application {

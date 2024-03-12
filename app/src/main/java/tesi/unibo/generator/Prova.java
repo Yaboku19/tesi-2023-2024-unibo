@@ -1,16 +1,17 @@
-package tesi.unibo.reader;
+package tesi.unibo.generator;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
+
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 
 public class Prova {
     public static void main(String[] args) {
@@ -40,36 +41,27 @@ public class Prova {
                 String testFileContent = generateTestFileContent(imports, className, method, packageName);
                 File testFile = new File("app/src/test/java/"+ packageName.replace(".", "/") + "/" +className + ".java");
                 Files.writeString(testFile.toPath(), testFileContent);
-                
-                String junitJupiterClass = "org.junit.jupiter.api.Assertions";
-                String junitJupiterJarPath = findJarPath(junitJupiterClass);
-                System.out.println("JUnit Jupiter JAR Path: " + junitJupiterJarPath);
 
                 // Compila il file Java
                 JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-                compiler.run(null, null, null, testFile.getAbsolutePath());
+                compiler.run(null, null, null, "-d", "./app/build/classes/test/", testFile.getAbsolutePath());
+
+                Result result = JUnitCore.runClasses(DynamicTest.class); // Sostituisci "YourTestClass" con il nome della tua classe di test
+
+                // Gestisci il risultato dei test
+                if (result.wasSuccessful()) {
+                    System.out.println("Tutti i test sono passati!");
+                } else {
+                    System.out.println("Alcuni test sono falliti:");
+                    for (Failure failure : result.getFailures()) {
+                        System.out.println(failure.toString());
+                    }
+                }
+                
             }
-        }catch( IOException e) {
+        }catch( Exception e) {
             e.printStackTrace();
         }
-
-                // Genera un file Java temporaneo per il test
-                /*String testFileContent = generateTestFileContent(imports, className, method);
-                File testFile = new File(className + ".java");
-                Files.writeString(testFile.toPath(), testFileContent);
-
-                // Compila il file Java
-                JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-                compiler.run(null, null, null, testFile.getAbsolutePath());
-
-                // Carica e esegui il test
-                Class<?> loadedClass = Class.forName(packageName + "." + className);
-                Object testInstance = loadedClass.getDeclaredConstructor().newInstance();
-                loadedClass.getMethod("dynamicTest").invoke(testInstance);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
     }
 
     private static String generateTestFileContent(JSONArray imports, String className, String method, String pacakge) {
@@ -83,29 +75,5 @@ public class Prova {
         content.append("    ").append(method).append("\n");
         content.append("}\n");
         return content.toString();
-    }
-
-    private static String findJarPath(String className) {
-        try {
-            Class<?> clazz = Class.forName(className);
-            ProtectionDomain protectionDomain = clazz.getProtectionDomain();
-            if (protectionDomain != null) {
-                CodeSource codeSource = protectionDomain.getCodeSource();
-                if (codeSource != null) {
-                    URL location = codeSource.getLocation();
-                    if (location != null) {
-                        String path = location.getPath();
-                        if (path.endsWith(".jar")) {
-                            return path;
-                        } else if (path.endsWith("/")) {
-                            return path.substring(0, path.length() - 1);
-                        }
-                    }
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }
