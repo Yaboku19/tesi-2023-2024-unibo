@@ -32,7 +32,7 @@ public class GeneratorJson implements Generator {
             final String testFileContent = generateTestFileContent(json.getJSONArray("imports"), className,
                                                                     json.getJSONArray("tests"), packageName);
             final File testFile = new File(TEXT_PATH + packageName.replace(".", "/") 
-                                            + "/" +className + EXTENSION);
+                                            + "/" + className + EXTENSION);
             Files.writeString(testFile.toPath(), testFileContent);
 
             final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -61,7 +61,7 @@ public class GeneratorJson implements Generator {
             content.append(imports.getString(i)).append("\n");
         }
         content.append("\n");
-        content.append("class ").append(className).append(" {\n");
+        content.append("public class ").append(className).append(" {\n");
         for (int i = 0; i < method.length(); i++) {
             content.append(method.getString(i)).append("\n");
         }
