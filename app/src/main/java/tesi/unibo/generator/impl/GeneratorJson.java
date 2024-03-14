@@ -62,31 +62,11 @@ public class GeneratorJson implements Generator {
         content.append("\n");
         content.append("public class ").append(className).append(" {\n");
         content.append(getConstructor()).append("\n");
-        //content.append(getLauncherMethod()).append("\n");
         for (int i = 0; i < method.length(); i++) {
             content.append(method.getString(i)).append("\n");
         }
         content.append("}\n");
         return content.toString();
-    }
-
-    private String getLauncherMethod() {
-        return "\t@Override\n" +
-                "\tpublic String launcher() {\n" +
-                "\t\tfor (var method : this.getClass().getMethods()) {\n" +
-                "\t\t\tSystem.out.println(method);\n" +
-                "\t\t}\n" +
-                "\t\tResult result = JUnitCore.runClasses(this.getClass());\n" +
-                "\t\tif (result.wasSuccessful()) {\n" +
-                "\t\t\tSystem.out.println(\"Tutti i test sono passati!\");\n" +
-                "\t\t} else {\n" +
-                "\t\t\tSystem.out.println(\"Alcuni test sono falliti:\");\n" +
-                "\t\t\tfor (Failure failure : result.getFailures()) {\n" +
-                "\t\t\t\tSystem.out.println(failure.toString());\n" +
-                "\t\t\t}\n" +
-                "\t\t}\n" +
-                "\t\treturn \"magico\";\n" +
-                "\t}\n";
     }
 
     private String getConstructor() {
