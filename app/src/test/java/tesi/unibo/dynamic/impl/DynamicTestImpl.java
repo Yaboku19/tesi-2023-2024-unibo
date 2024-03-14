@@ -3,10 +3,13 @@ import org.junit.jupiter.api.Test;
 import tesi.unibo.dynamic.api.DynamicTest;
 
 public class DynamicTestImpl implements DynamicTest {
+	public DynamicTestImpl() {
+	}
+
 	@Override
 	public String launcher() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'launcher'");
+		System.out.println("ce l'hai fatta");
+		return "";
 	}
 
 	@Test

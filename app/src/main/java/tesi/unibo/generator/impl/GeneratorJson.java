@@ -12,8 +12,8 @@ import javax.tools.ToolProvider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.jupiter.api.DynamicTest;
 
+import tesi.unibo.dynamic.api.DynamicTest;
 import tesi.unibo.generator.api.Generator;
 
 public class GeneratorJson implements Generator {
@@ -62,6 +62,7 @@ public class GeneratorJson implements Generator {
         }
         content.append("\n");
         content.append("public class ").append(className).append(" implements DynamicTest {\n");
+        content.append(getConstructor()).append("\n");
         content.append(getLauncherMethod()).append("\n");
         for (int i = 0; i < method.length(); i++) {
             content.append(method.getString(i)).append("\n");
@@ -73,9 +74,13 @@ public class GeneratorJson implements Generator {
     private String getLauncherMethod() {
         return "\t@Override\n" +
                 "\tpublic String launcher() {\n" +
-                "\t\t// TODO Auto-generated method stub\n" +
-                "\t\tthrow new UnsupportedOperationException(\"Unimplemented method 'launcher'\");\n" +
+                "\t\tSystem.out.println(\"ce l'hai fatta\");\n" +
+                "\t\treturn \"\";\n" +
                 "\t}\n";
+    }
+
+    private String getConstructor() {
+        return "\tpublic DynamicTestImpl() {\n\t}\n";
     }
     
 }

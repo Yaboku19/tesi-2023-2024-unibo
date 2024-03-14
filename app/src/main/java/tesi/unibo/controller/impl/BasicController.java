@@ -1,8 +1,7 @@
 package tesi.unibo.controller.impl;
 
-import org.junit.jupiter.api.DynamicTest;
-
 import tesi.unibo.controller.api.Controller;
+import tesi.unibo.dynamic.api.DynamicTest;
 import tesi.unibo.generator.api.Generator;
 import tesi.unibo.generator.impl.GeneratorJson;
 import tesi.unibo.llmcomunication.api.Comunicator;

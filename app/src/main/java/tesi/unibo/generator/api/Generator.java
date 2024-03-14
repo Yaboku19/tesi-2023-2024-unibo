@@ -1,6 +1,6 @@
 package tesi.unibo.generator.api;
 
-import org.junit.jupiter.api.DynamicTest;
+import tesi.unibo.dynamic.api.DynamicTest;
 
 public interface Generator {
     Class<DynamicTest> generateTest(String url);    

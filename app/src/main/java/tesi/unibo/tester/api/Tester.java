@@ -1,6 +1,6 @@
 package tesi.unibo.tester.api;
 
-import org.junit.jupiter.api.DynamicTest;
+import tesi.unibo.dynamic.api.DynamicTest;
 
 public interface Tester {
     String test(Class<DynamicTest> testClass);
