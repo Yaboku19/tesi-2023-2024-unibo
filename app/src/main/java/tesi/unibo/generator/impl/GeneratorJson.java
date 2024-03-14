@@ -13,16 +13,15 @@ import javax.tools.ToolProvider;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import tesi.unibo.dynamic.api.DynamicTest;
 import tesi.unibo.generator.api.Generator;
 
 public class GeneratorJson implements Generator {
     private static final String TEXT_PATH = "app/src/test/java/";
     private static final String EXTENSION = ".java";
     private static final String BUILD_PATH = "/app/build/classes/test/";
-    @SuppressWarnings("unchecked")
+    
     @Override
-    public Class<DynamicTest> generateTest(final String url) {
+    public Class<?> generateTest(final String url) {
         try {
             final InputStream inputStream = GeneratorJson.class.getClassLoader().getResourceAsStream(url);
             final String jsonContent = new String(inputStream.readAllBytes());
@@ -44,7 +43,7 @@ public class GeneratorJson implements Generator {
                 String testJavaPath = System.getProperty("user.dir") + BUILD_PATH;
                 URL testUrl = new File(testJavaPath).toURI().toURL();
                 URLClassLoader testClassLoader = URLClassLoader.newInstance(new URL[]{testUrl});
-                return (Class<DynamicTest>) testClassLoader.loadClass(packageName + "." + className);
+                return testClassLoader.loadClass(packageName + "." + className);
             } catch (ClassNotFoundException | MalformedURLException e) {
                 e.printStackTrace();
             }
@@ -61,9 +60,9 @@ public class GeneratorJson implements Generator {
             content.append(imports.getString(i)).append("\n");
         }
         content.append("\n");
-        content.append("public class ").append(className).append(" implements DynamicTest {\n");
+        content.append("public class ").append(className).append(" {\n");
         content.append(getConstructor()).append("\n");
-        content.append(getLauncherMethod()).append("\n");
+        //content.append(getLauncherMethod()).append("\n");
         for (int i = 0; i < method.length(); i++) {
             content.append(method.getString(i)).append("\n");
         }
@@ -74,8 +73,19 @@ public class GeneratorJson implements Generator {
     private String getLauncherMethod() {
         return "\t@Override\n" +
                 "\tpublic String launcher() {\n" +
-                "\t\tSystem.out.println(\"ce l'hai fatta\");\n" +
-                "\t\treturn \"\";\n" +
+                "\t\tfor (var method : this.getClass().getMethods()) {\n" +
+                "\t\t\tSystem.out.println(method);\n" +
+                "\t\t}\n" +
+                "\t\tResult result = JUnitCore.runClasses(this.getClass());\n" +
+                "\t\tif (result.wasSuccessful()) {\n" +
+                "\t\t\tSystem.out.println(\"Tutti i test sono passati!\");\n" +
+                "\t\t} else {\n" +
+                "\t\t\tSystem.out.println(\"Alcuni test sono falliti:\");\n" +
+                "\t\t\tfor (Failure failure : result.getFailures()) {\n" +
+                "\t\t\t\tSystem.out.println(failure.toString());\n" +
+                "\t\t\t}\n" +
+                "\t\t}\n" +
+                "\t\treturn \"magico\";\n" +
                 "\t}\n";
     }
 

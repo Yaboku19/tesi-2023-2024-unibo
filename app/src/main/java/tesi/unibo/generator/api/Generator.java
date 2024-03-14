@@ -1,7 +1,6 @@
 package tesi.unibo.generator.api;
 
-import tesi.unibo.dynamic.api.DynamicTest;
 
 public interface Generator {
-    Class<DynamicTest> generateTest(String url);    
+    Class<?> generateTest(String url);    
 }
