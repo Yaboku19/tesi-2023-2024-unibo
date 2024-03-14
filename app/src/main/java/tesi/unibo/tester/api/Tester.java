@@ -1,6 +1,7 @@
 package tesi.unibo.tester.api;
 
+import java.util.Map;
 
 public interface Tester {
-    String test(Class<?> testClass);
+    Map<String, String> test(Class<?> testClass);
 }

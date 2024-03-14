@@ -1,11 +1,14 @@
 {
   "package": "tesi.unibo.dynamic.impl",
   "className": "DynamicTestImpl",
-  "imports": [],
+  "imports": [
+    "import org.junit.jupiter.api.Assertions;"
+  ],
   "tests": [
     "\t@org.junit.Test",
     "\tpublic void dynamicTest() {",
     "\t\tSystem.out.println(\"Dynamic test executed.\");",
+    "\t\tAssertions.assertTrue(false);",
     "\t}\n"
   ]
 }

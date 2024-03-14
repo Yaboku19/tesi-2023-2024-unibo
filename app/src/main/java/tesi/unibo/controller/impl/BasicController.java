@@ -24,7 +24,7 @@ public class BasicController implements Controller {
     @Override
     public void play() {
         //System.out.println(comunicator.generateCode("ho fame"));
-        tester.test(textClass);
+        System.out.println(tester.test(textClass));
     }
     
 }
