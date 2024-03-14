@@ -12,18 +12,19 @@ import javax.tools.ToolProvider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.DynamicTest;
 
-import tesi.unibo.generator.Prova;
 import tesi.unibo.generator.api.Generator;
 
 public class GeneratorJson implements Generator {
     private static final String TEXT_PATH = "app/src/test/java/";
     private static final String EXTENSION = ".java";
     private static final String BUILD_PATH = "/app/build/classes/test/";
+    @SuppressWarnings("unchecked")
     @Override
-    public Class<?> generateTest(final String url) {
+    public Class<DynamicTest> generateTest(final String url) {
         try {
-            final InputStream inputStream = Prova.class.getClassLoader().getResourceAsStream(url);
+            final InputStream inputStream = GeneratorJson.class.getClassLoader().getResourceAsStream(url);
             final String jsonContent = new String(inputStream.readAllBytes());
             final JSONObject json = new JSONObject(jsonContent);
 
@@ -43,8 +44,7 @@ public class GeneratorJson implements Generator {
                 String testJavaPath = System.getProperty("user.dir") + BUILD_PATH;
                 URL testUrl = new File(testJavaPath).toURI().toURL();
                 URLClassLoader testClassLoader = URLClassLoader.newInstance(new URL[]{testUrl});
-                Class<?> generatedTestClass = testClassLoader.loadClass(packageName + "." + className);
-                return generatedTestClass;
+                return (Class<DynamicTest>) testClassLoader.loadClass(packageName + "." + className);
             } catch (ClassNotFoundException | MalformedURLException e) {
                 e.printStackTrace();
             }
@@ -61,12 +61,21 @@ public class GeneratorJson implements Generator {
             content.append(imports.getString(i)).append("\n");
         }
         content.append("\n");
-        content.append("public class ").append(className).append(" {\n");
+        content.append("public class ").append(className).append(" implements DynamicTest {\n");
+        content.append(getLauncherMethod()).append("\n");
         for (int i = 0; i < method.length(); i++) {
             content.append(method.getString(i)).append("\n");
         }
         content.append("}\n");
         return content.toString();
+    }
+
+    private String getLauncherMethod() {
+        return "\t@Override\n" +
+                "\tpublic String launcher() {\n" +
+                "\t\t// TODO Auto-generated method stub\n" +
+                "\t\tthrow new UnsupportedOperationException(\"Unimplemented method 'launcher'\");\n" +
+                "\t}\n";
     }
     
 }

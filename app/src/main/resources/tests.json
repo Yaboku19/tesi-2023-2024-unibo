@@ -1,10 +1,14 @@
 {
-  "package": "tesi.unibo",
-  "className": "DynamicTest",
+  "package": "tesi.unibo.dynamic.impl",
+  "className": "DynamicTestImpl",
   "imports": [
-    "import org.junit.jupiter.api.Test;"
+    "import org.junit.jupiter.api.Test;",
+    "import tesi.unibo.dynamic.api.DynamicTest;"
   ],
   "tests": [
-    "\t@Test void dynamicTest() {\n \t\tSystem.out.println(\"Dynamic test executed.\");\n\t}"
+    "\t@Test",
+    "\tvoid dynamicTest() {",
+    "\t\tSystem.out.println(\"Dynamic test executed.\");",
+    "\t}\n"
   ]
 }
