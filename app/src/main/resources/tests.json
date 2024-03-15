@@ -1,6 +1,4 @@
 {
-  "package": "tesi.unibo.dynamic.impl",
-  "className": "DynamicTestImpl",
   "imports": [
     "import org.junit.jupiter.api.Assertions;"
   ],
