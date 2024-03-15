@@ -16,12 +16,12 @@ public class ChatGPTComunicator implements Comunicator {
     @Override
     public String generateCode(final String question) {
         try {
-            HttpURLConnection con = (HttpURLConnection) new URL(URL).openConnection();
+            final HttpURLConnection con = (HttpURLConnection) new URL(URL).openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Authorization", "Bearer " + KEY);
 
-            JSONObject data = new JSONObject();
+            final JSONObject data = new JSONObject();
             data.put("model", "gpt-3.5-turbo");
             data.put("messages", getMessages(question));
             data.put("max_tokens", 4000);
@@ -30,17 +30,17 @@ public class ChatGPTComunicator implements Comunicator {
             con.getOutputStream().write(data.toString().getBytes());
 
             // Invia la richiesta e ottieni la risposta
-            int responseCode = con.getResponseCode();
+            final int responseCode = con.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                StringBuilder response = new StringBuilder();
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+                final StringBuilder response = new StringBuilder();
+                try (final BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
                     String inputLine;
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine);
                     }
                 }
 
-                JSONObject jsonResponse = new JSONObject(response.toString());
+                final JSONObject jsonResponse = new JSONObject(response.toString());
                 return jsonResponse
                     .getJSONArray("choices")
                     .getJSONObject(0)
