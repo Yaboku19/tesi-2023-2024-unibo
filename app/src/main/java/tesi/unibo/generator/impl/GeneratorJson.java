@@ -18,9 +18,9 @@ public class GeneratorJson implements Generator {
     private static final String CLASS_NAME = "DynamicTest";
     
     @Override
-    public Class<?> generateTest(final String url) {
+    public Class<?> generateTest(final String data) {
         try {
-            final JSONObject json = getJsonFromFile(url);
+            final JSONObject json = new JSONObject(data);
             final String testFileContent = generateTestFileContent(json.getJSONArray("imports"), CLASS_NAME, json.getJSONArray("tests"), PACKAGE);
             final File testFile = new File(TEXT_PATH + PACKAGE.replace(".", "/") + "/" + CLASS_NAME + EXTENSION);
             Files.writeString(testFile.toPath(), testFileContent);
@@ -57,13 +57,4 @@ public class GeneratorJson implements Generator {
     private String getConstructor() {
         return "\tpublic "+ CLASS_NAME +"() {\n\t}\n";
     }
-
-    private JSONObject getJsonFromFile (final String url) throws Exception {
-        return new JSONObject(
-                new String(
-                    GeneratorJson.class.getClassLoader().getResourceAsStream(url).readAllBytes()
-                )
-            );
-    }
-    
 }
