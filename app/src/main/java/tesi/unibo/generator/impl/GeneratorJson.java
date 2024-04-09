@@ -21,7 +21,8 @@ public class GeneratorJson implements Generator {
     public Class<?> generateTest(final String data) {
         try {
             final JSONObject json = new JSONObject(data);
-            final String testFileContent = generateTestFileContent(json.getJSONArray("imports"), CLASS_NAME, json.getJSONArray("tests"), PACKAGE);
+            final String testFileContent = generateTestFileContent(json.getJSONArray("imports"), CLASS_NAME, json.getJSONArray("tests"), 
+                                                                    PACKAGE, json.getString("class"));
             final File testFile = new File(TEXT_PATH + PACKAGE.replace(".", "/") + "/" + CLASS_NAME + EXTENSION);
             Files.writeString(testFile.toPath(), testFileContent);
 
@@ -38,20 +39,37 @@ public class GeneratorJson implements Generator {
         return null;
     }
 
-    private String generateTestFileContent(final JSONArray imports, final String className, final JSONArray method, final String pacakge) {
+    private String generateTestFileContent(final JSONArray imports, final String className, final JSONArray method, final String pacakge, final String classImport) {
         final StringBuilder content = new StringBuilder();
         content.append("package " + pacakge + ";").append("\n");
+        content.append("import tesi.unibo.dynamic."+ classImport+ ";\n");
         for (int i = 0; i < imports.length(); i++) {
             content.append(imports.getString(i)).append("\n");
         }
         content.append("\n");
         content.append("public class ").append(className).append(" {\n");
         content.append(getConstructor()).append("\n");
+        int count = 1;
         for (int i = 0; i < method.length(); i++) {
+            if (method.getString(i).endsWith("}")) {
+                count--;
+            }
+            content.append(addTab(count));
+            if (method.getString(i).endsWith("{")) {
+                count++;
+            }
             content.append(method.getString(i)).append("\n");
         }
         content.append("}\n");
         return content.toString();
+    }
+
+    private String addTab(final int count) {
+        final StringBuilder toReturn = new StringBuilder();
+        for (int j = 0; j < count; j++) {
+            toReturn.append("\t");
+        }
+        return toReturn.toString();
     }
 
     private String getConstructor() {

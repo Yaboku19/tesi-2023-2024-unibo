@@ -22,9 +22,9 @@ dependencies {
     implementation("org.json:json:20220924")
 
     // Dipendenze di test
-    implementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    implementation("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-    implementation("junit:junit:4.12")
+    implementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
+    implementation("org.junit.jupiter:junit-jupiter-engine:5.9.0")
+    implementation("org.junit.platform:junit-platform-launcher:1.10.2")
 }
 
 application {
