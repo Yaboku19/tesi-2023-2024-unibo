@@ -6,7 +6,6 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import tesi.unibo.generator.api.Generator;
 
@@ -18,11 +17,8 @@ public class GeneratorJson implements Generator {
     private static final String CLASS_NAME = "DynamicTest";
     
     @Override
-    public Class<?> generateTest(final String data) {
+    public Class<?> generateTest(final String testFileContent) {
         try {
-            final JSONObject json = new JSONObject(data);
-            final String testFileContent = generateTestFileContent(json.getJSONArray("imports"), CLASS_NAME, json.getJSONArray("tests"), 
-                                                                    PACKAGE, json.getString("class"));
             final File testFile = new File(TEXT_PATH + PACKAGE.replace(".", "/") + "/" + CLASS_NAME + EXTENSION);
             Files.writeString(testFile.toPath(), testFileContent);
 
@@ -39,26 +35,27 @@ public class GeneratorJson implements Generator {
         return null;
     }
 
-    private String generateTestFileContent(final JSONArray imports, final String className, final JSONArray method, final String pacakge, final String classImport) {
+    public String generateTestFileContent(final String data) {
+        final JSONObject json = new JSONObject(data);
         final StringBuilder content = new StringBuilder();
-        content.append("package " + pacakge + ";").append("\n");
-        content.append("import tesi.unibo.dynamic."+ classImport+ ";\n");
-        for (int i = 0; i < imports.length(); i++) {
-            content.append(imports.getString(i)).append("\n");
+        content.append("package " + PACKAGE + ";").append("\n");
+        content.append("import tesi.unibo.dynamic."+ json.getString("class")+ ";\n");
+        for (int i = 0; i < json.getJSONArray("imports").length(); i++) {
+            content.append(json.getJSONArray("imports").getString(i)).append("\n");
         }
         content.append("\n");
-        content.append("public class ").append(className).append(" {\n");
+        content.append("public class ").append(CLASS_NAME).append(" {\n");
         content.append(getConstructor()).append("\n");
         int count = 1;
-        for (int i = 0; i < method.length(); i++) {
-            if (method.getString(i).endsWith("}")) {
+        for (int i = 0; i < json.getJSONArray("tests").length(); i++) {
+            if (json.getJSONArray("tests").getString(i).endsWith("}")) {
                 count--;
             }
             content.append(addTab(count));
-            if (method.getString(i).endsWith("{")) {
+            if (json.getJSONArray("tests").getString(i).endsWith("{")) {
                 count++;
             }
-            content.append(method.getString(i)).append("\n");
+            content.append(json.getJSONArray("tests").getString(i)).append("\n");
         }
         content.append("}\n");
         return content.toString();

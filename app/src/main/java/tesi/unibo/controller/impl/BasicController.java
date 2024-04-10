@@ -15,9 +15,10 @@ public class BasicController implements Controller {
     private static final String URL_RESOURCE = "tests.json";
     private final Comunicator comunicator;
     private final Generator generator;
-    private final Class<?> textClass;
+    private Class<?> textClass;
     private final Tester tester;
     private final String testData;
+    private final String testFileContent;
 
     public BasicController () {
         comunicator = new ChatGPTComunicator();
@@ -31,13 +32,13 @@ public class BasicController implements Controller {
             e.printStackTrace();
         }
         testData = dataFile;
-        textClass = generator.generateTest(dataFile);
+        testFileContent = generator.generateTestFileContent(dataFile);
     }
 
     @Override
     public void play() {
-        //System.out.println(comunicator.generateCode("ho fame"));
-        System.out.println(tester.test(textClass));
+        System.out.println(testFileContent);
+        textClass = generator.generateTest(testFileContent);
     }
     
 }
