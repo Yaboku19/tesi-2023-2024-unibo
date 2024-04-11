@@ -19,12 +19,13 @@ public class BasicController implements Controller {
     private final Tester tester;
     private final String testData;
     private final String testFileContent;
+    private final Reader reader;
 
     public BasicController () {
         comunicator = new ChatGPTComunicator();
         generator = new GeneratorJson();
         tester = new TesterJava();
-        final Reader reader = new ReaderFromJson();
+        reader = new ReaderFromJson();
         String dataFile = "";
         try  {
             dataFile = reader.readFromFIle(URL_RESOURCE);
@@ -37,8 +38,14 @@ public class BasicController implements Controller {
 
     @Override
     public void play() {
-        System.out.println(testFileContent);
-        textClass = generator.generateTest(testFileContent);
+        generateClass();
+        //textClass = generator.generateTest(testFileContent);
+    }
+
+    private void generateClass() {
+        generator.generateClass(
+            comunicator.generateCode(testFileContent
+            + "\n\nti ho scritto una classe in java con dei test. Voglio che mi generi una classe che passa i test. SCRIVI SOLO IL CODICE JAVA, senza commenti"));
     }
     
 }
