@@ -16,7 +16,8 @@ public class GeneratorJson implements Generator {
     private static final String TEXT_PATH = "app/src/test/java/";
     private static final String CLASS_PATH = "app/src/main/java/";
     private static final String EXTENSION = ".java";
-    private static final String BUILD_PATH = "/app/build/classes/test/";
+    private static final String BUILD_PATH_TEST = "/app/build/classes/java/test";
+    private static final String BUILD_PATH_CLASS = "/app/build/classes/java/main";
     private static final String PACKAGE_TEST = "tesi.unibo.dynamic.impl";
     private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
     private static final String CLASS_NAME = "DynamicTest";
@@ -28,9 +29,9 @@ public class GeneratorJson implements Generator {
 
             final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
             compiler.run(null, null, null, "-d",
-                         "." + BUILD_PATH, testFile.getAbsolutePath());
+                         "." + BUILD_PATH_TEST, testFile.getAbsolutePath());
 
-            final URL testUrl = new File(System.getProperty("user.dir") + BUILD_PATH).toURI().toURL();
+            final URL testUrl = new File(System.getProperty("user.dir") + BUILD_PATH_TEST).toURI().toURL();
             final URLClassLoader testClassLoader = URLClassLoader.newInstance(new URL[]{testUrl});
             return testClassLoader.loadClass(PACKAGE_TEST + "." + CLASS_NAME);
         } catch (final Exception e) {
@@ -85,10 +86,15 @@ public class GeneratorJson implements Generator {
         while (matcher.find()) {
             codeJava += matcher.group(1);
         }
+        if (codeJava == "") {
+            codeJava = data;
+        }
         try {
             final File testFile = Generator.generateFile(CLASS_PATH, PACKAGE_CLASS, "Contatore", EXTENSION, codeJava);
+            final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+            compiler.run(null, null, null, "-d",
+                         "." + BUILD_PATH_CLASS, testFile.getAbsolutePath());
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

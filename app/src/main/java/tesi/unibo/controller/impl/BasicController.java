@@ -39,13 +39,14 @@ public class BasicController implements Controller {
     @Override
     public void play() {
         generateClass();
-        //textClass = generator.generateTest(testFileContent);
+        textClass = generator.generateTest(testFileContent);
+        System.out.println(tester.test(textClass));
     }
 
     private void generateClass() {
         generator.generateClass(
             comunicator.generateCode(testFileContent
-            + "\n\nti ho scritto una classe in java con dei test. Voglio che mi generi una classe che passa i test. SCRIVI SOLO IL CODICE JAVA, senza commenti"));
+            + "\n\nti ho scritto una classe in java con dei test. Voglio che mi generi una classe che passa i test, il package della clasee è \"tesi.unibo.dynamic\". VOGLIO SOLO IL CODICE NO COMMENTI"));
     }
     
 }
