@@ -9,8 +9,8 @@ public class ElaboratorImpl implements Elaborator {
     private final String defaultQuestion;
 
     public ElaboratorImpl(final String packageClass) {
-        this.defaultQuestion = "\n\n Voglio che mi generi una classe che passa i test forniti, " +
-                                "il package della clasee è \"" + packageClass + "\". VOGLIO SOLO IL CODICE NO COMMENTI";
+        this.defaultQuestion = "\n\n Ho scritto una classe di test java. Voglio che mi generi una classe java che passa i test forniti, " +
+                                "il package della classe da creare è \"" + packageClass + "\". VOGLIO SOLO IL CODICE NO COMMENTI";
     }
     @Override
     public String elaborateQuestion(Map<String, String> logMap) {
@@ -18,11 +18,12 @@ public class ElaboratorImpl implements Elaborator {
             return defaultQuestion;
         } else {
             final StringBuilder content = new StringBuilder();
-            content.append("Dalla tua precedente implementazione i seguenti test sono falliti:\n");
+            content.append(defaultQuestion);
+            content.append("\nDalla tua precedente implementazione i seguenti test sono falliti:\n");
             for (var entry : logMap.entrySet()) {
                 content.append("\t- " + entry.getKey() + ": " + entry.getValue() + "\n");
             }
-            content.append(defaultQuestion + ". Tieni conto dei test falliti.");
+            content.append("Rigenera la classe tenendo conto dei test falliti");
             return content.toString();
         }
         

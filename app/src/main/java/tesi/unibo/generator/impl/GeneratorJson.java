@@ -44,7 +44,7 @@ public class GeneratorJson implements Generator {
         final JSONObject json = new JSONObject(data);
         final StringBuilder content = new StringBuilder();
         content.append("package " + packageTest + ";").append("\n");
-        content.append("import "+packageClass+ "."+ json.getString("class")+ ";\n");
+        content.append("import "+ packageClass+ "."+ json.getString("class")+ ";\n");
         for (int i = 0; i < json.getJSONArray("imports").length(); i++) {
             content.append(json.getJSONArray("imports").getString(i)).append("\n");
         }

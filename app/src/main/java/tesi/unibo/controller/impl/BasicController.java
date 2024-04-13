@@ -24,6 +24,7 @@ public class BasicController implements Controller {
     private final String testFileContent;
     private final Reader reader;
     private final Elaborator elaborator;
+    private final String className;
     private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
     private static final String PACKAGE_TEST = "tesi.unibo.dynamic.impl";
 
@@ -40,11 +41,13 @@ public class BasicController implements Controller {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        className = reader.getName(dataFile);
         testFileContent = generator.generateTestFileContent(dataFile);
     }
 
     @Override
     public void play() {
+        System.out.println(className);
         Map<String, String> logMap = new HashMap<>();
         generateClass(logMap);
         try {
