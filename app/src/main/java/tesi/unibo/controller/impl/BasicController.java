@@ -26,7 +26,7 @@ public class BasicController implements Controller {
     private final Elaborator elaborator;
     private final String className;
     private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
-    private static final String PACKAGE_TEST = "tesi.unibo.dynamic.impl";
+    private static final String PACKAGE_TEST = "tesi.unibo.dynamic";
 
 
     public BasicController () {

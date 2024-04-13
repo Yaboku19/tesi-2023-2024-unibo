@@ -1,4 +1,4 @@
-package tesi.unibo.dynamic.impl;
+package tesi.unibo.dynamic;
 import tesi.unibo.dynamic.Contatore;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
