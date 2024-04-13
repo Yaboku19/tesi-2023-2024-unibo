@@ -24,10 +24,13 @@ public class BasicController implements Controller {
     private final String testFileContent;
     private final Reader reader;
     private final Elaborator elaborator;
+    private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
+    private static final String PACKAGE_TEST = "tesi.unibo.dynamic.impl";
+
 
     public BasicController () {
         comunicator = new ChatGPTComunicator();
-        generator = new GeneratorJson();
+        generator = new GeneratorJson(PACKAGE_TEST, PACKAGE_CLASS);
         tester = new TesterJava();
         reader = new ReaderFromJson();
         elaborator = new ElaboratorImpl();

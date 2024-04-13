@@ -18,13 +18,18 @@ public class GeneratorJson implements Generator {
     private static final String EXTENSION = ".java";
     private static final String BUILD_PATH_TEST = "/app/build/classes/java/test";
     private static final String BUILD_PATH_CLASS = "/app/build/classes/java/main";
-    private static final String PACKAGE_TEST = "tesi.unibo.dynamic.impl";
-    private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
+    private final String packageTest;
+    private final String packageClass;
     private static final String CLASS_NAME = "DynamicTest";
+
+    public GeneratorJson(final String packageTest, final String packageClass) {
+        this.packageTest = packageTest;
+        this.packageClass = packageClass;
+    }
     
     @Override
     public Class<?> generateTest(final String testFileContent) throws IOException, ClassNotFoundException {
-        final File testFile = Generator.generateFile(TEXT_PATH, PACKAGE_TEST, CLASS_NAME, EXTENSION, testFileContent);
+        final File testFile = Generator.generateFile(TEXT_PATH, packageTest, CLASS_NAME, EXTENSION, testFileContent);
 
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         compiler.run(null, null, null, "-d",
@@ -32,14 +37,14 @@ public class GeneratorJson implements Generator {
 
         final URL testUrl = new File(System.getProperty("user.dir") + BUILD_PATH_TEST).toURI().toURL();
         final URLClassLoader testClassLoader = URLClassLoader.newInstance(new URL[]{testUrl});
-        return testClassLoader.loadClass(PACKAGE_TEST + "." + CLASS_NAME);
+        return testClassLoader.loadClass(packageTest + "." + CLASS_NAME);
     }
 
     public String generateTestFileContent(final String data) {
         final JSONObject json = new JSONObject(data);
         final StringBuilder content = new StringBuilder();
-        content.append("package " + PACKAGE_TEST + ";").append("\n");
-        content.append("import "+PACKAGE_CLASS+ "."+ json.getString("class")+ ";\n");
+        content.append("package " + packageTest + ";").append("\n");
+        content.append("import "+packageClass+ "."+ json.getString("class")+ ";\n");
         for (int i = 0; i < json.getJSONArray("imports").length(); i++) {
             content.append(json.getJSONArray("imports").getString(i)).append("\n");
         }
@@ -84,7 +89,7 @@ public class GeneratorJson implements Generator {
         if (codeJava == "") {
             codeJava = data;
         }
-        final File testFile = Generator.generateFile(CLASS_PATH, PACKAGE_CLASS, "Contatore", EXTENSION, codeJava);
+        final File testFile = Generator.generateFile(CLASS_PATH, packageClass, "Contatore", EXTENSION, codeJava);
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         final int result = compiler.run(null, null, null, "-d",
                         "." + BUILD_PATH_CLASS, testFile.getAbsolutePath());

@@ -4,18 +4,18 @@ public class Contatore {
     private int valore;
 
     public Contatore() {
-        valore = 0;
+        this.valore = 0;
     }
 
     public void incrementa() {
-        valore++;
+        this.valore++;
     }
 
     public void decrementa() {
-        valore--;
+        this.valore--;
     }
 
     public int getValore() {
-        return valore;
+        return this.valore;
     }
 }
