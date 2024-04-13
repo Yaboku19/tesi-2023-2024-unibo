@@ -33,7 +33,7 @@ public class BasicController implements Controller {
         generator = new GeneratorJson(PACKAGE_TEST, PACKAGE_CLASS);
         tester = new TesterJava();
         reader = new ReaderFromJson();
-        elaborator = new ElaboratorImpl();
+        elaborator = new ElaboratorImpl(PACKAGE_CLASS);
         String dataFile = "";
         try  {
             dataFile = reader.readFromFIle(URL_RESOURCE);

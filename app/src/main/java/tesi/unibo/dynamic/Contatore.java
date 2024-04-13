@@ -7,15 +7,15 @@ public class Contatore {
         this.valore = 0;
     }
 
+    public int getValore() {
+        return valore;
+    }
+
     public void incrementa() {
-        this.valore++;
+        valore++;
     }
 
     public void decrementa() {
-        this.valore--;
-    }
-
-    public int getValore() {
-        return this.valore;
+        valore--;
     }
 }
