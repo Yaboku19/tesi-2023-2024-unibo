@@ -23,21 +23,16 @@ public class GeneratorJson implements Generator {
     private static final String CLASS_NAME = "DynamicTest";
     
     @Override
-    public Class<?> generateTest(final String testFileContent) {
-        try {
-            final File testFile = Generator.generateFile(TEXT_PATH, PACKAGE_TEST, CLASS_NAME, EXTENSION, testFileContent);
+    public Class<?> generateTest(final String testFileContent) throws IOException, ClassNotFoundException {
+        final File testFile = Generator.generateFile(TEXT_PATH, PACKAGE_TEST, CLASS_NAME, EXTENSION, testFileContent);
 
-            final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-            compiler.run(null, null, null, "-d",
-                         "." + BUILD_PATH_TEST, testFile.getAbsolutePath());
+        final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        compiler.run(null, null, null, "-d",
+                        "." + BUILD_PATH_TEST, testFile.getAbsolutePath());
 
-            final URL testUrl = new File(System.getProperty("user.dir") + BUILD_PATH_TEST).toURI().toURL();
-            final URLClassLoader testClassLoader = URLClassLoader.newInstance(new URL[]{testUrl});
-            return testClassLoader.loadClass(PACKAGE_TEST + "." + CLASS_NAME);
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        final URL testUrl = new File(System.getProperty("user.dir") + BUILD_PATH_TEST).toURI().toURL();
+        final URLClassLoader testClassLoader = URLClassLoader.newInstance(new URL[]{testUrl});
+        return testClassLoader.loadClass(PACKAGE_TEST + "." + CLASS_NAME);
     }
 
     public String generateTestFileContent(final String data) {
@@ -79,7 +74,7 @@ public class GeneratorJson implements Generator {
     }
 
     @Override
-    public void generateClass(String data) {
+    public int generateClass(String data) throws IOException {
         Pattern pattern = Pattern.compile("```java(.*?)```", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(data);
         String codeJava = "";
@@ -89,13 +84,10 @@ public class GeneratorJson implements Generator {
         if (codeJava == "") {
             codeJava = data;
         }
-        try {
-            final File testFile = Generator.generateFile(CLASS_PATH, PACKAGE_CLASS, "Contatore", EXTENSION, codeJava);
-            final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-            compiler.run(null, null, null, "-d",
-                         "." + BUILD_PATH_CLASS, testFile.getAbsolutePath());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        final File testFile = Generator.generateFile(CLASS_PATH, PACKAGE_CLASS, "Contatore", EXTENSION, codeJava);
+        final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        final int result = compiler.run(null, null, null, "-d",
+                        "." + BUILD_PATH_CLASS, testFile.getAbsolutePath());
+        return result;
     }
 }
