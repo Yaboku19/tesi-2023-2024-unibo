@@ -47,7 +47,6 @@ public class BasicController implements Controller {
 
     @Override
     public void play() {
-        System.out.println(className);
         Map<String, String> logMap = new HashMap<>();
         generateClass(logMap);
         try {
@@ -67,7 +66,7 @@ public class BasicController implements Controller {
         final String question = elaborator.elaborateQuestion(logMap);
         final String response = comunicator.generateCode(testFileContent + question);
         try {
-            generator.generateClass(response);
+            generator.generateClass(response, className);
         } catch (IOException e) {
             System.out.println("ERROR! invalid class");
             System.exit(1);

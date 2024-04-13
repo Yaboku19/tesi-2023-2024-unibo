@@ -8,7 +8,7 @@ public interface Generator {
 
     Class<?> generateTest(String data) throws IOException, ClassNotFoundException;
 
-    int generateClass(String data) throws IOException;
+    int generateClass(String data, String className) throws IOException;
 
     String generateTestFileContent(final String data);
 

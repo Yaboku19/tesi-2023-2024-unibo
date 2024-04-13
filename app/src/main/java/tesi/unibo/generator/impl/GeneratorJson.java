@@ -79,7 +79,7 @@ public class GeneratorJson implements Generator {
     }
 
     @Override
-    public int generateClass(String data) throws IOException {
+    public int generateClass(final String data, final String className) throws IOException {
         Pattern pattern = Pattern.compile("```java(.*?)```", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(data);
         String codeJava = "";
@@ -89,7 +89,7 @@ public class GeneratorJson implements Generator {
         if (codeJava == "") {
             codeJava = data;
         }
-        final File testFile = Generator.generateFile(CLASS_PATH, packageClass, "Contatore", EXTENSION, codeJava);
+        final File testFile = Generator.generateFile(CLASS_PATH, packageClass, className, EXTENSION, codeJava);
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         final int result = compiler.run(null, null, null, "-d",
                         "." + BUILD_PATH_CLASS, testFile.getAbsolutePath());
