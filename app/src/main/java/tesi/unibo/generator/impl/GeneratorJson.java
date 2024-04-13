@@ -49,7 +49,6 @@ public class GeneratorJson implements Generator {
         }
         content.append("\n");
         content.append("public class ").append(CLASS_NAME).append(" {\n");
-        content.append(getConstructor()).append("\n");
         int count = 1;
         for (int i = 0; i < json.getJSONArray("tests").length(); i++) {
             if (json.getJSONArray("tests").getString(i).endsWith("}")) {
@@ -71,10 +70,6 @@ public class GeneratorJson implements Generator {
             toReturn.append("\t");
         }
         return toReturn.toString();
-    }
-
-    private String getConstructor() {
-        return "\tpublic "+ CLASS_NAME +"() {\n\t}\n";
     }
 
     @Override
