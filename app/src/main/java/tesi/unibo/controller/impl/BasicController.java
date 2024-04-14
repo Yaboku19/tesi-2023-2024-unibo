@@ -5,7 +5,7 @@ import tesi.unibo.controller.api.Controller;
 import tesi.unibo.elaborator.api.Elaborator;
 import tesi.unibo.elaborator.impl.ElaboratorImpl;
 import tesi.unibo.generator.api.Generator;
-import tesi.unibo.generator.impl.GeneratorJson;
+import tesi.unibo.generator.impl.GeneratorImpl;
 import tesi.unibo.llmcomunication.api.Comunicator;
 import tesi.unibo.llmcomunication.impl.ChatGPTComunicator;
 import tesi.unibo.reader.api.Reader;
@@ -30,7 +30,7 @@ public class BasicController implements Controller {
 
     public BasicController () {
         comunicator = new ChatGPTComunicator();
-        generator = new GeneratorJson(PACKAGE_TEST, PACKAGE_CLASS);
+        generator = new GeneratorImpl(PACKAGE_TEST, PACKAGE_CLASS, TEST_NAME);
         tester = new TesterJava();
         reader = new ReaderFromJson(PACKAGE_TEST, TEST_NAME);
         elaborator = new ElaboratorImpl(PACKAGE_CLASS);

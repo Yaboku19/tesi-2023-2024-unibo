@@ -10,7 +10,7 @@ import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import tesi.unibo.generator.api.Generator;
 
-public class GeneratorJson implements Generator {
+public class GeneratorImpl implements Generator {
     private static final String TEXT_PATH = "app/src/test/java/";
     private static final String CLASS_PATH = "app/src/main/java/";
     private static final String EXTENSION = ".java";
@@ -18,16 +18,17 @@ public class GeneratorJson implements Generator {
     private static final String BUILD_PATH_CLASS = "/app/build/classes/java/main";
     private final String packageTest;
     private final String packageClass;
-    private static final String TEST_NAME = "DynamicTest";
+    private final String testName;
 
-    public GeneratorJson(final String packageTest, final String packageClass) {
+    public GeneratorImpl(final String packageTest, final String packageClass, final String testName) {
         this.packageTest = packageTest;
         this.packageClass = packageClass;
+        this.testName = testName;
     }
     
     @Override
     public Class<?> generateTest(final String testFileContent) throws IOException, ClassNotFoundException {
-        final File testFile = Generator.generateFile(TEXT_PATH, packageTest, TEST_NAME, EXTENSION, testFileContent);
+        final File testFile = Generator.generateFile(TEXT_PATH, packageTest, testName, EXTENSION, testFileContent);
 
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         compiler.run(null, null, null, "-d",
@@ -35,7 +36,7 @@ public class GeneratorJson implements Generator {
 
         final URL testUrl = new File(System.getProperty("user.dir") + BUILD_PATH_TEST).toURI().toURL();
         final URLClassLoader testClassLoader = URLClassLoader.newInstance(new URL[]{testUrl});
-        return testClassLoader.loadClass(packageTest + "." + TEST_NAME);
+        return testClassLoader.loadClass(packageTest + "." + testName);
     }
 
     @Override

@@ -13,6 +13,7 @@ public class ReaderFromJson implements Reader{
         this.packageTest = pacakageTest;
         this.testName = testName;
     }
+
     @Override
     public String readFromFIle(String url) throws IOException {
         return generateTestFileContent(new String(
@@ -52,6 +53,7 @@ public class ReaderFromJson implements Reader{
         }
         return toReturn.toString();
     }
+
     @Override
     public String getClassName() {
         return this.className;
