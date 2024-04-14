@@ -10,7 +10,7 @@ public class ElaboratorImpl implements Elaborator {
 
     public ElaboratorImpl(final String packageClass) {
         this.defaultQuestion = "\n\n Ho scritto una classe di test java. Voglio che mi generi una classe java che passa i test forniti, " +
-                                "il package della classe da creare è \"" + packageClass + "\". VOGLIO SOLO IL CODICE NO COMMENTI";
+                                "il package della classe da creare e' \"" + packageClass + "\". VOGLIO SOLO IL CODICE NO COMMENTI";
     }
     @Override
     public String elaborateQuestion(Map<String, String> logMap) {

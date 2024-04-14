@@ -20,7 +20,8 @@ public class GeneratorJson implements Generator {
     private static final String BUILD_PATH_CLASS = "/app/build/classes/java/main";
     private final String packageTest;
     private final String packageClass;
-    private static final String CLASS_NAME = "DynamicTest";
+    private String className = "";
+    private static final String TEST_NAME = "DynamicTest";
 
     public GeneratorJson(final String packageTest, final String packageClass) {
         this.packageTest = packageTest;
@@ -29,7 +30,7 @@ public class GeneratorJson implements Generator {
     
     @Override
     public Class<?> generateTest(final String testFileContent) throws IOException, ClassNotFoundException {
-        final File testFile = Generator.generateFile(TEXT_PATH, packageTest, CLASS_NAME, EXTENSION, testFileContent);
+        final File testFile = Generator.generateFile(TEXT_PATH, packageTest, TEST_NAME, EXTENSION, testFileContent);
 
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         compiler.run(null, null, null, "-d",
@@ -37,18 +38,19 @@ public class GeneratorJson implements Generator {
 
         final URL testUrl = new File(System.getProperty("user.dir") + BUILD_PATH_TEST).toURI().toURL();
         final URLClassLoader testClassLoader = URLClassLoader.newInstance(new URL[]{testUrl});
-        return testClassLoader.loadClass(packageTest + "." + CLASS_NAME);
+        return testClassLoader.loadClass(packageTest + "." + TEST_NAME);
     }
 
     public String generateTestFileContent(final String data) {
         final JSONObject json = new JSONObject(data);
+        className = json.getString("class");
         final StringBuilder content = new StringBuilder();
         content.append("package " + packageTest + ";").append("\n");
         for (int i = 0; i < json.getJSONArray("imports").length(); i++) {
             content.append(json.getJSONArray("imports").getString(i)).append("\n");
         }
         content.append("\n");
-        content.append("public class ").append(CLASS_NAME).append(" {\n");
+        content.append("public class ").append(TEST_NAME).append(" {\n");
         int count = 1;
         for (int i = 0; i < json.getJSONArray("tests").length(); i++) {
             if (json.getJSONArray("tests").getString(i).endsWith("}")) {
@@ -73,7 +75,7 @@ public class GeneratorJson implements Generator {
     }
 
     @Override
-    public int generateClass(final String data, final String className) throws IOException {
+    public int generateClass(final String data) throws IOException {
         Pattern pattern = Pattern.compile("```java(.*?)```", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(data);
         String codeJava = "";

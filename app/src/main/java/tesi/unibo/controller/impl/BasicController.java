@@ -24,7 +24,6 @@ public class BasicController implements Controller {
     private final String testFileContent;
     private final Reader reader;
     private final Elaborator elaborator;
-    private final String className;
     private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
     private static final String PACKAGE_TEST = "tesi.unibo.dynamic";
 
@@ -41,7 +40,6 @@ public class BasicController implements Controller {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        className = reader.getName(dataFile);
         testFileContent = generator.generateTestFileContent(dataFile);
     }
 
@@ -64,9 +62,11 @@ public class BasicController implements Controller {
 
     private void generateClass(final Map<String, String> logMap) {
         final String question = elaborator.elaborateQuestion(logMap);
+        System.out.println(testFileContent + question);
         final String response = comunicator.generateCode(testFileContent + question);
+        System.out.println(response);
         try {
-            generator.generateClass(response, className);
+            generator.generateClass(response);
         } catch (IOException e) {
             System.out.println("ERROR! invalid class");
             System.exit(1);
