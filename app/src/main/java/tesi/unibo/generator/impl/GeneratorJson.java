@@ -4,13 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-import org.json.JSONObject;
 import tesi.unibo.generator.api.Generator;
 
 public class GeneratorJson implements Generator {
@@ -21,7 +18,6 @@ public class GeneratorJson implements Generator {
     private static final String BUILD_PATH_CLASS = "/app/build/classes/java/main";
     private final String packageTest;
     private final String packageClass;
-    private String className = "";
     private static final String TEST_NAME = "DynamicTest";
 
     public GeneratorJson(final String packageTest, final String packageClass) {
@@ -42,16 +38,8 @@ public class GeneratorJson implements Generator {
         return testClassLoader.loadClass(packageTest + "." + TEST_NAME);
     }
 
-    private String addTab(final int count) {
-        final StringBuilder toReturn = new StringBuilder();
-        for (int j = 0; j < count; j++) {
-            toReturn.append("\t");
-        }
-        return toReturn.toString();
-    }
-
     @Override
-    public int generateClass(final String data) throws IOException {
+    public int generateClass(final String data, final String className) throws IOException {
         Pattern pattern = Pattern.compile("```java(.*?)```", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(data);
         String codeJava = "";
@@ -68,29 +56,4 @@ public class GeneratorJson implements Generator {
         return result;
     }
 
-    @Override
-    public String generateTestFileContent(Map<String, String> data) {
-        final JSONObject json = new JSONObject(data.get("jsonCode"));
-        className = json.getString("class");
-        final StringBuilder content = new StringBuilder();
-        content.append("package " + packageTest + ";").append("\n");
-        for (int i = 0; i < json.getJSONArray("imports").length(); i++) {
-            content.append(json.getJSONArray("imports").getString(i)).append("\n");
-        }
-        content.append("\n");
-        content.append("public class ").append(TEST_NAME).append(" {\n");
-        int count = 1;
-        for (int i = 0; i < json.getJSONArray("tests").length(); i++) {
-            if (json.getJSONArray("tests").getString(i).endsWith("}")) {
-                count--;
-            }
-            content.append(addTab(count));
-            if (json.getJSONArray("tests").getString(i).endsWith("{")) {
-                count++;
-            }
-            content.append(json.getJSONArray("tests").getString(i)).append("\n");
-        }
-        content.append("}\n");
-        return content.toString();
-    }
 }

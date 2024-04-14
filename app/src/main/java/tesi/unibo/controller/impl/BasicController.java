@@ -26,21 +26,21 @@ public class BasicController implements Controller {
     private final Elaborator elaborator;
     private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
     private static final String PACKAGE_TEST = "tesi.unibo.dynamic";
-
+    private static final String TEST_NAME = "DynamicTest";
 
     public BasicController () {
         comunicator = new ChatGPTComunicator();
         generator = new GeneratorJson(PACKAGE_TEST, PACKAGE_CLASS);
         tester = new TesterJava();
-        reader = new ReaderFromJson();
+        reader = new ReaderFromJson(PACKAGE_TEST, TEST_NAME);
         elaborator = new ElaboratorImpl(PACKAGE_CLASS);
-        Map<String, String> dataFile = new HashMap<>();
+        String dataFile = "";
         try  {
             dataFile = reader.readFromFIle(URL_RESOURCE);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        testFileContent = generator.generateTestFileContent(dataFile);
+        testFileContent = dataFile;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class BasicController implements Controller {
         final String question = elaborator.elaborateQuestion(logMap);
         final String response = comunicator.generateCode(testFileContent + question);
         try {
-            generator.generateClass(response);
+            generator.generateClass(response, reader.getClassName());
         } catch (IOException e) {
             System.out.println("ERROR! invalid class");
             System.exit(1);
