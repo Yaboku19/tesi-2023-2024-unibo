@@ -17,16 +17,17 @@ import java.util.HashMap;
 
 public class BasicController implements Controller {
     private static final String URL_RESOURCE = "tests.json";
+    private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
+    private static final String PACKAGE_TEST = "tesi.unibo.dynamic";
+    private static final String TEST_NAME = "DynamicTest";
     private final Comunicator comunicator;
     private final Generator generator;
-    private Class<?> textClass;
     private final Tester tester;
     private final String testFileContent;
     private final Reader reader;
     private final Elaborator elaborator;
-    private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
-    private static final String PACKAGE_TEST = "tesi.unibo.dynamic";
-    private static final String TEST_NAME = "DynamicTest";
+    private Class<?> textClass;
+    
 
     public BasicController () {
         comunicator = new ChatGPTComunicator();
@@ -45,7 +46,7 @@ public class BasicController implements Controller {
 
     @Override
     public void play() {
-        Map<String, String> logMap = new HashMap<>();
+        final Map<String, String> logMap = new HashMap<>();
         generateClass(logMap);
         try {
             textClass = generator.generateTest(testFileContent);
@@ -53,10 +54,12 @@ public class BasicController implements Controller {
             System.out.println("ERROR! invalid test");
             System.exit(1);
         }
-        logMap = tester.test(textClass);
+        logMap.clear();
+        logMap.putAll(tester.test(textClass));
         while (!logMap.isEmpty()) {
             generateClass(logMap);
-            logMap = tester.test(textClass);
+            logMap.clear();
+            logMap.putAll(tester.test(textClass));
         }
     }
 

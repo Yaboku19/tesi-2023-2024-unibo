@@ -12,8 +12,9 @@ public class ElaboratorImpl implements Elaborator {
         this.defaultQuestion = "\n\n Ho scritto una classe di test java. Voglio che mi generi una classe java che passa i test forniti, " +
                                 "il package della classe da creare e' \"" + packageClass + "\". VOGLIO SOLO IL CODICE NO COMMENTI";
     }
+
     @Override
-    public String elaborateQuestion(Map<String, String> logMap) {
+    public String elaborateQuestion(final Map<String, String> logMap) {
         if (logMap.isEmpty()) {
             return defaultQuestion;
         } else {

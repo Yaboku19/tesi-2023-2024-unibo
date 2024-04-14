@@ -14,28 +14,16 @@ public class TesterJava implements Tester {
 
     @Override
     public Map<String, String> test(final Class<?> testClass) {
-        // Creazione della richiesta di scoperta dei test
-        LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+        final LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
             .selectors(DiscoverySelectors.selectClass(testClass))
             .build();
-
-        // Creazione del launcher
-        Launcher launcher = LauncherFactory.create();
-
-        // Listener per raccogliere i sommari dei test eseguiti
-        SummaryGeneratingListener listener = new SummaryGeneratingListener();
-
-        // Esecuzione dei test
+        final Launcher launcher = LauncherFactory.create();
+        final SummaryGeneratingListener listener = new SummaryGeneratingListener();
         launcher.execute(request, listener);
-
-        // Estrazione dei risultati
         final Map<String, String> logMap = new HashMap<>();
         listener.getSummary().getFailures().forEach(failure -> {
-            String testName = failure.getTestIdentifier().getDisplayName();
-            String message = failure.getException().getMessage();
-            logMap.put(testName, message);
+            logMap.put(failure.getTestIdentifier().getDisplayName(), failure.getException().getMessage());
         });
-
         return logMap;
     }
 }

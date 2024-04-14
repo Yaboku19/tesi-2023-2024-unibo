@@ -8,7 +8,7 @@ import tesi.unibo.reader.api.Reader;
 import java.util.Map;
 
 public class ReaderFromYml extends Reader {
-    public ReaderFromYml(String pacakageTest, String testName) {
+    public ReaderFromYml(final String pacakageTest, final String testName) {
         super(pacakageTest, testName);
     }
 
