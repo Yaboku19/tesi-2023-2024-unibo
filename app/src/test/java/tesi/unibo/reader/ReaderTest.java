@@ -19,7 +19,7 @@ public class ReaderTest {
     public void readWithWrongUrl() {
         String data = "";
         try {
-            data = reader.readFromFIle("test.json");
+            data = reader.readFromFile("test.json");
         } catch (Exception e) {
         }
         assertEquals(data, "");
@@ -29,7 +29,7 @@ public class ReaderTest {
     public void readWithRightUrl() {
         String data = "";
         try {
-            data = reader.readFromFIle("tests.json");
+            data = reader.readFromFile("tests.json");
         } catch (Exception e) {
         }
         assertNotEquals(data, "");

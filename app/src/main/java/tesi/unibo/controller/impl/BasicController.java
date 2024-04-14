@@ -36,8 +36,8 @@ public class BasicController implements Controller {
         elaborator = new ElaboratorImpl(PACKAGE_CLASS);
         String dataFile = "";
         try  {
-            dataFile = reader.readFromFIle(URL_RESOURCE);
-        } catch (IOException e) {
+            dataFile = reader.readFromFile(URL_RESOURCE);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         testFileContent = dataFile;
