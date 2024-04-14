@@ -34,7 +34,7 @@ public class BasicController implements Controller {
         tester = new TesterJava();
         reader = new ReaderFromJson();
         elaborator = new ElaboratorImpl(PACKAGE_CLASS);
-        String dataFile = "";
+        Map<String, String> dataFile = new HashMap<>();
         try  {
             dataFile = reader.readFromFIle(URL_RESOURCE);
         } catch (IOException e) {
@@ -62,9 +62,7 @@ public class BasicController implements Controller {
 
     private void generateClass(final Map<String, String> logMap) {
         final String question = elaborator.elaborateQuestion(logMap);
-        System.out.println(testFileContent + question);
         final String response = comunicator.generateCode(testFileContent + question);
-        System.out.println(response);
         try {
             generator.generateClass(response);
         } catch (IOException e) {

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,31 +42,6 @@ public class GeneratorJson implements Generator {
         return testClassLoader.loadClass(packageTest + "." + TEST_NAME);
     }
 
-    public String generateTestFileContent(final String data) {
-        final JSONObject json = new JSONObject(data);
-        className = json.getString("class");
-        final StringBuilder content = new StringBuilder();
-        content.append("package " + packageTest + ";").append("\n");
-        for (int i = 0; i < json.getJSONArray("imports").length(); i++) {
-            content.append(json.getJSONArray("imports").getString(i)).append("\n");
-        }
-        content.append("\n");
-        content.append("public class ").append(TEST_NAME).append(" {\n");
-        int count = 1;
-        for (int i = 0; i < json.getJSONArray("tests").length(); i++) {
-            if (json.getJSONArray("tests").getString(i).endsWith("}")) {
-                count--;
-            }
-            content.append(addTab(count));
-            if (json.getJSONArray("tests").getString(i).endsWith("{")) {
-                count++;
-            }
-            content.append(json.getJSONArray("tests").getString(i)).append("\n");
-        }
-        content.append("}\n");
-        return content.toString();
-    }
-
     private String addTab(final int count) {
         final StringBuilder toReturn = new StringBuilder();
         for (int j = 0; j < count; j++) {
@@ -90,5 +66,31 @@ public class GeneratorJson implements Generator {
         final int result = compiler.run(null, null, null, "-d",
                         "." + BUILD_PATH_CLASS, testFile.getAbsolutePath());
         return result;
+    }
+
+    @Override
+    public String generateTestFileContent(Map<String, String> data) {
+        final JSONObject json = new JSONObject(data.get("jsonCode"));
+        className = json.getString("class");
+        final StringBuilder content = new StringBuilder();
+        content.append("package " + packageTest + ";").append("\n");
+        for (int i = 0; i < json.getJSONArray("imports").length(); i++) {
+            content.append(json.getJSONArray("imports").getString(i)).append("\n");
+        }
+        content.append("\n");
+        content.append("public class ").append(TEST_NAME).append(" {\n");
+        int count = 1;
+        for (int i = 0; i < json.getJSONArray("tests").length(); i++) {
+            if (json.getJSONArray("tests").getString(i).endsWith("}")) {
+                count--;
+            }
+            content.append(addTab(count));
+            if (json.getJSONArray("tests").getString(i).endsWith("{")) {
+                count++;
+            }
+            content.append(json.getJSONArray("tests").getString(i)).append("\n");
+        }
+        content.append("}\n");
+        return content.toString();
     }
 }

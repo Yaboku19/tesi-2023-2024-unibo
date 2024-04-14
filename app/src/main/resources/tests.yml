@@ -1,0 +1,37 @@
+
+class: Contatore
+imports: "
+  import static org.junit.jupiter.api.Assertions.assertEquals;\n
+  import org.junit.jupiter.api.BeforeEach;\n
+  import org.junit.jupiter.api.Test;"
+code: "\n
+  private Contatore contatore;\n
+  \n
+  @BeforeEach\n
+  public void setUp() {\n
+    // Inizializza un nuovo contatore prima di ogni test\n
+    contatore = new Contatore();\n
+  }\n
+  \n
+  @Test\n
+  public void testIncrementa() {\n
+    // Incrementa il valore e verifica che sia aumentato di 1\n
+    contatore.incrementa();\n
+    assertEquals(1, contatore.getValore(), \"Il valore dovrebbe essere incrementato di 1\");\n
+  }\n
+  \n
+  @Test\n
+  public void testDecrementa() {\n
+    // Decrementa il valore e verifica che sia diminuito di 1\n
+    contatore.decrementa();\n
+    assertEquals(-1, contatore.getValore(), \"Il valore dovrebbe essere decrementato di 1\");\n
+  }\n
+  \n
+  @Test\n
+  public void testIncrementaDecrementa() {\n
+    // Combina incrementi e decrementi e verifica il risultato finale\n
+    contatore.incrementa();\n
+    contatore.incrementa();\n
+    contatore.decrementa();\n
+    assertEquals(1, contatore.getValore(), \"Il valore dovrebbe essere 1 dopo due incrementi e un decremento\");\n
+  }"

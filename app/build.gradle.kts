@@ -20,6 +20,7 @@ dependencies {
     // Dipendenze di implementazione (main)
     implementation("com.google.guava:guava:31.1-jre")
     implementation("org.json:json:20220924")
+    implementation("org.yaml:snakeyaml:2.2")
 
     // Dipendenze di test
     implementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
