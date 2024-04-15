@@ -31,7 +31,7 @@ public class BasicController implements Controller {
 
     public BasicController () {
         comunicator = new ChatGPTComunicator();
-        generator = new GeneratorImpl(PACKAGE_TEST, PACKAGE_CLASS, TEST_NAME);
+        generator = new GeneratorImpl(PACKAGE_TEST, PACKAGE_CLASS);
         tester = new TesterJava();
         reader = new ReaderFromJson(PACKAGE_TEST, TEST_NAME);
         elaborator = new ElaboratorImpl(PACKAGE_CLASS);
@@ -49,7 +49,7 @@ public class BasicController implements Controller {
         final Map<String, String> logMap = new HashMap<>();
         generateClass(logMap);
         try {
-            textClass = generator.generateTest(testFileContent);
+            textClass = generator.generateTest(testFileContent, TEST_NAME);
         } catch (Exception e) {
             System.out.println("ERROR! invalid test");
             System.exit(1);

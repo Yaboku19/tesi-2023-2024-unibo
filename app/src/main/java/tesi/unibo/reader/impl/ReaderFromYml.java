@@ -14,7 +14,7 @@ public class ReaderFromYml extends Reader {
 
     @Override
     public String readFromFile(final String url) throws Exception {
-        final InputStream inputStream = new FileInputStream(new File(ClassLoader.getSystemResource("tests.yml").toURI()));
+        final InputStream inputStream = new FileInputStream(new File(ClassLoader.getSystemResource(url).toURI()));
         return generateTestFileContent(new Yaml().load(inputStream));
     }
 

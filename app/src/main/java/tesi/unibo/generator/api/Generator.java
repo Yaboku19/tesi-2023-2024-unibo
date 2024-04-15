@@ -6,7 +6,7 @@ import java.nio.file.Files;
 
 public interface Generator {
 
-    Class<?> generateTest(String data) throws IOException, ClassNotFoundException;
+    Class<?> generateTest(String data, String testName) throws IOException, ClassNotFoundException;
 
     int generateClass(String data, String className) throws IOException;
 

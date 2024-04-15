@@ -18,16 +18,14 @@ public class GeneratorImpl implements Generator {
     private static final String BUILD_PATH_CLASS = "/app/build/classes/java/main";
     private final String packageTest;
     private final String packageClass;
-    private final String testName;
 
-    public GeneratorImpl(final String packageTest, final String packageClass, final String testName) {
+    public GeneratorImpl(final String packageTest, final String packageClass) {
         this.packageTest = packageTest;
         this.packageClass = packageClass;
-        this.testName = testName;
     }
     
     @Override
-    public Class<?> generateTest(final String testFileContent) throws IOException, ClassNotFoundException {
+    public Class<?> generateTest(final String testFileContent, final String testName) throws IOException, ClassNotFoundException {
         final File testFile = Generator.generateFile(TEXT_PATH, packageTest, testName, EXTENSION, testFileContent);
 
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
