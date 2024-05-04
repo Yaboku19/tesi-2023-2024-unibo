@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import tesi.unibo.generator.api.Generator;
@@ -39,16 +37,7 @@ public class GeneratorImpl implements Generator {
 
     @Override
     public int generateClass(final String data, final String className) throws IOException {
-        Pattern pattern = Pattern.compile("```java(.*?)```", Pattern.DOTALL);
-        Matcher matcher = pattern.matcher(data);
-        String codeJava = "";
-        while (matcher.find()) {
-            codeJava += matcher.group(1);
-        }
-        if (codeJava == "") {
-            codeJava = data;
-        }
-        final File testFile = Generator.generateFile(CLASS_PATH, packageClass, className, EXTENSION, codeJava);
+        final File testFile = Generator.generateFile(CLASS_PATH, packageClass, className, EXTENSION, data);
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         final int result = compiler.run(null, null, null, "-d",
                         "." + BUILD_PATH_CLASS, testFile.getAbsolutePath());

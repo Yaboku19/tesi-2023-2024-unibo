@@ -1,8 +1,11 @@
-
 package tesi.unibo.dynamic;
 
 public class Contatore {
     private int valore = 0;
+
+    public int getValore() {
+        return valore;
+    }
 
     public void incrementa() {
         valore++;
@@ -10,9 +13,5 @@ public class Contatore {
 
     public void decrementa() {
         valore--;
-    }
-
-    public int getValore() {
-        return valore;
     }
 }
