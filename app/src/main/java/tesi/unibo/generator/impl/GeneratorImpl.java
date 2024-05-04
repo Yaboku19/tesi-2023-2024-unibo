@@ -1,5 +1,6 @@
 package tesi.unibo.generator.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -35,13 +36,14 @@ public class GeneratorImpl implements Generator {
         return testClassLoader.loadClass(packageTest + "." + testName);
     }
 
-    @Override
-    public int generateClass(final String data, final String className) throws IOException {
+    public String generateClass(final String data, final String className) throws IOException {
         final File testFile = Generator.generateFile(CLASS_PATH, packageClass, className, EXTENSION, data);
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        final int result = compiler.run(null, null, null, "-d",
+        ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
+        final int result = compiler.run(null, null, errorStream, "-d",
                         "." + BUILD_PATH_CLASS, testFile.getAbsolutePath());
-        return result;
+        
+        return result == 0 ? "" :  errorStream.toString();
     }
 
 }

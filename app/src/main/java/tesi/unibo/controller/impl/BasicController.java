@@ -67,11 +67,18 @@ public class BasicController implements Controller {
     }
 
     private void generateClass(final Map<String, String> logMap) {
-        final String question = this.elaborator.elaborateQuestion(logMap, classJava);
-        final String response = this.comunicator.generateCode(testFileContent + question);
+        String question = this.elaborator.elaborateQuestion(logMap, classJava);
+        String response = this.comunicator.generateCode(testFileContent + question);
         setCodeJava(response);
         try {
-            this.generator.generateClass(classJava, reader.getClassName());
+            String compileError = this.generator.generateClass(classJava, reader.getClassName());
+            while (compileError != "") {
+                question = this.elaborator.elaborateCompileError(compileError, classJava);
+                response = this.comunicator.generateCode(testFileContent + question);
+                setCodeJava(response);
+                compileError = this.generator.generateClass(classJava, reader.getClassName());
+            }
+            
         } catch (IOException e) {
             System.out.println("ERROR! invalid class");
             System.exit(1);

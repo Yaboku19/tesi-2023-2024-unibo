@@ -7,12 +7,9 @@ import tesi.unibo.elaborator.api.Elaborator;
 
 public class ElaboratorImpl implements Elaborator {
     private final String defaultQuestion;
-    private final String packageClass;
-
     public ElaboratorImpl(final String packageClass) {
         this.defaultQuestion = "\n\n Ho scritto una classe di test java. Voglio che mi generi una classe java che passa i test forniti, " +
                                 "il package della classe da creare e' \"" + packageClass + "\". VOGLIO SOLO IL CODICE NO COMMENTI";
-        this.packageClass = packageClass;
         }
 
     @Override
@@ -31,6 +28,16 @@ public class ElaboratorImpl implements Elaborator {
             return content.toString();
         }
         
+    }
+
+    @Override
+    public String elaborateCompileError(String compileError, final String classJava) {
+        final StringBuilder content = new StringBuilder();
+        content.append(defaultQuestion + "\n" + "Questa è stata la tua implementazione\n");
+        content.append(classJava).append("\n\n");
+        content.append("Ha dato i seguenti problemi \n\n");
+        content.append(compileError);
+        return content.toString();
     }
     
 }
