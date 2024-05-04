@@ -1,4 +1,5 @@
 class: DietFactory
+support: Diet
 imports: "
   import static tesi.unibo.dynamic.Diet.Nutrient.*;\n
   import static org.junit.jupiter.api.Assertions.*;\n

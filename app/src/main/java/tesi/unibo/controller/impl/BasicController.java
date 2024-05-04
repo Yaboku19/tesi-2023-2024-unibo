@@ -62,16 +62,24 @@ public class BasicController implements Controller {
             System.exit(1);
         }
         logMap.clear();
-        //logMap.putAll(tester.test(testClass));
-        /*while (!logMap.isEmpty()) {
+        logMap.putAll(tester.test(testClass));
+        while (!logMap.isEmpty()) {
             generateClass(logMap);
             logMap.clear();
             logMap.putAll(tester.test(testClass));
-        }*/
+        }
     }
 
     private void generateClass(final Map<String, String> logMap) {
-        String question = this.elaborator.elaborateQuestion(logMap, classJava);
+        String question = "";
+        System.out.println("////////////////////////////////////");
+        System.out.println(reader.getSupportClass());
+        System.out.println("////////////////////////////////////");
+        if(reader.getSupportClass() == "") {
+            question = this.elaborator.elaborateQuestion(logMap, classJava);
+        } else {
+            question = this.elaborator.elaberateQuestionWithClass(logMap, classJava, reader.getSupportClass());
+        }
         System.out.println("question = \n" + testFileContent + question);
         System.out.println("--------------------------------");
         String response = this.comunicator.generateCode(testFileContent + question);
@@ -81,7 +89,11 @@ public class BasicController implements Controller {
         try {
             String compileError = this.generator.generateClass(classJava, reader.getClassName());
             while (compileError != "") {
-                question = this.elaborator.elaborateCompileError(compileError, classJava);
+                if(reader.getSupportClass() == "") {
+                    question = this.elaborator.elaborateQuestion(logMap, classJava);
+                } else {
+                    question = this.elaborator.elaberateQuestionWithClass(logMap, classJava, reader.getSupportClass());
+                }
                 System.out.println("question = \n" + testFileContent + question);
                 System.out.println("--------------------------------");
                 response = this.comunicator.generateCode(testFileContent + question);

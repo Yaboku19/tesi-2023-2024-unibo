@@ -8,7 +8,7 @@ import tesi.unibo.elaborator.api.Elaborator;
 public class ElaboratorImpl implements Elaborator {
     private final String defaultQuestion;
     public ElaboratorImpl(final String packageClass, final String className) {
-        this.defaultQuestion = "\n\n Ti ho mandato una classe test in java. Voglio che mi generi la classe java di nome " + className +
+        this.defaultQuestion = "\n\n Date le seguenti informazioni. Voglio che mi generi la classe java di nome " + className +
                                 ", la classe non implementa e non estende nulla, che passa i test forniti, il package della classe da creare e' \"" 
                                 + packageClass + "\". VOGLIO SOLO IL CODICE NO COMMENTI. Devi implementare te tutti i passaggi";
         }
@@ -38,6 +38,26 @@ public class ElaboratorImpl implements Elaborator {
         content.append(classJava).append("\n\n");
         content.append("Ha dato i seguenti problemi \n\n");
         content.append(compileError);
+        return content.toString();
+    }
+
+    @Override
+    public String elaberateQuestionWithClass(final Map<String, String> logMap, final String classJava, final String supporterClass) {
+        final StringBuilder content = new StringBuilder();
+        if (logMap.isEmpty()) {
+            content.append("\n\nQuesta e' la classe di supporto\n" + supporterClass);
+            content.append(defaultQuestion);
+        } else {
+            content.append("\n\nQuesta è la classe di supporto\n" + supporterClass);
+            content.append(defaultQuestion);
+            content.append("Questa era la tua precedente implementazione : \n\n").append(classJava);
+            content.append("\n\nDalla tua precedente implementazione i seguenti test sono falliti:\n");
+            for (var entry : logMap.entrySet()) {
+                content.append("\t- " + entry.getKey() + ": " + entry.getValue() + "\n");
+            }
+            content.append("Rigenera la classe tenendo conto dei test falliti");
+            
+        }
         return content.toString();
     }
     
