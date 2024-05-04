@@ -7,9 +7,10 @@ import tesi.unibo.elaborator.api.Elaborator;
 
 public class ElaboratorImpl implements Elaborator {
     private final String defaultQuestion;
-    public ElaboratorImpl(final String packageClass) {
-        this.defaultQuestion = "\n\n Ho scritto una classe di test java. Voglio che mi generi una classe java che passa i test forniti, " +
-                                "il package della classe da creare e' \"" + packageClass + "\". VOGLIO SOLO IL CODICE NO COMMENTI";
+    public ElaboratorImpl(final String packageClass, final String className) {
+        this.defaultQuestion = "\n\n Ti ho mandato una classe test in java. Voglio che mi generi la classe java di nome " + className +
+                                ", la classe non implementa e non estende nulla, che passa i test forniti, il package della classe da creare e' \"" 
+                                + packageClass + "\". VOGLIO SOLO IL CODICE NO COMMENTI. Devi implementare te tutti i passaggi";
         }
 
     @Override

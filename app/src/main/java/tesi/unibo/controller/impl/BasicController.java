@@ -1,6 +1,9 @@
 package tesi.unibo.controller.impl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+
 import tesi.unibo.controller.api.Controller;
 import tesi.unibo.elaborator.api.Elaborator;
 import tesi.unibo.elaborator.impl.ElaboratorImpl;
@@ -18,7 +21,7 @@ import java.util.regex.Pattern;
 import java.util.HashMap;
 
 public class BasicController implements Controller {
-    private static final String URL_RESOURCE = "tests.yml";
+    private static final String URL_RESOURCE = "dietTest.yml";
     private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
     private static final String PACKAGE_TEST = "tesi.unibo.dynamic";
     private static final String TEST_NAME = "DynamicTest";
@@ -37,7 +40,7 @@ public class BasicController implements Controller {
         this.generator = new GeneratorImpl(PACKAGE_TEST, PACKAGE_CLASS);
         this.tester = new TesterJava();
         this.reader = new ReaderFromYml(PACKAGE_TEST, TEST_NAME);
-        elaborator = new ElaboratorImpl(PACKAGE_CLASS);
+        
         String dataFile = "";
         try  {
             dataFile = this.reader.readFromFile(URL_RESOURCE);
@@ -45,6 +48,7 @@ public class BasicController implements Controller {
             e.printStackTrace();
         }
         this.testFileContent = dataFile;
+        elaborator = new ElaboratorImpl(PACKAGE_CLASS, reader.getClassName());
     }
 
     @Override
@@ -58,23 +62,37 @@ public class BasicController implements Controller {
             System.exit(1);
         }
         logMap.clear();
-        logMap.putAll(tester.test(testClass));
-        while (!logMap.isEmpty()) {
+        //logMap.putAll(tester.test(testClass));
+        /*while (!logMap.isEmpty()) {
             generateClass(logMap);
             logMap.clear();
             logMap.putAll(tester.test(testClass));
-        }
+        }*/
     }
 
     private void generateClass(final Map<String, String> logMap) {
         String question = this.elaborator.elaborateQuestion(logMap, classJava);
+        System.out.println("question = \n" + testFileContent + question);
+        System.out.println("--------------------------------");
         String response = this.comunicator.generateCode(testFileContent + question);
+        System.out.println("response = \n" + response);
+        System.out.println("--------------------------------");
         setCodeJava(response);
         try {
             String compileError = this.generator.generateClass(classJava, reader.getClassName());
             while (compileError != "") {
                 question = this.elaborator.elaborateCompileError(compileError, classJava);
+                System.out.println("question = \n" + testFileContent + question);
+                System.out.println("--------------------------------");
                 response = this.comunicator.generateCode(testFileContent + question);
+                System.out.println("response = \n" + response);
+                System.out.println("--------------------------------");
+                try {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+                    reader.readLine();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 setCodeJava(response);
                 compileError = this.generator.generateClass(classJava, reader.getClassName());
             }
