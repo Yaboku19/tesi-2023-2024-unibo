@@ -75,7 +75,15 @@ public class BasicController implements Controller {
         if(reader.getSupportClass() == "") {
             question = this.elaborator.elaborateQuestion(logMap, classJava, testFileContent);
         } else {
-            question = this.elaborator.elaberateQuestionWithClass(logMap, classJava, testFileContent, reader.getSupportClass());
+            if (reader.getImplementClass() == "") {
+                question = this
+                    .elaborator.elaberateQuestionWithSupportClass(logMap, classJava, testFileContent, reader.getSupportClass());
+            } else {
+                question = this
+                    .elaborator.elaberateQuestionWithSupportAndImplementClass(logMap, classJava, testFileContent,
+                                                                         reader.getSupportClass(), reader.getImplementClass());
+            }
+            
         }
         
         System.out.println("question = \n" + question);
@@ -96,7 +104,16 @@ public class BasicController implements Controller {
                 if(reader.getSupportClass() == "") {
                     question = this.elaborator.elaborateCompileError(compileError, classJava, testFileContent);
                 } else {
-                    question = this.elaborator.elaborateCompileErrorWithClass(compileError, classJava, testFileContent, reader.getSupportClass());
+                    if (reader.getImplementClass() == "") {
+                        question = this.elaborator
+                            .elaborateCompileErrorWithSupportClass(compileError, classJava, testFileContent, 
+                                                                    reader.getSupportClass());
+                    } else {
+                        question = this.elaborator
+                            .elaborateCompileErrorWithSupportAndImplementClass(compileError, classJava, testFileContent,
+                                                                            reader.getSupportClass(), reader.getImplementClass());
+                    }
+                    
                 }
                 System.out.println("question = \n" + question);
                 System.out.println("--------------------------------");

@@ -6,9 +6,17 @@ public interface Elaborator {
     
     String elaborateQuestion(Map<String, String> logMap, String classJava, String testClass);
 
-    String elaberateQuestionWithClass(Map<String, String> logMap, String classJava, String testClass, String supporterClass);
+    String elaberateQuestionWithSupportClass(Map<String, String> logMap, String classJava, String testClass,
+                                             String supporterClass);
+
+    String elaberateQuestionWithSupportAndImplementClass(Map<String, String> logMap, String classJava, String testClass, 
+                                                        String supporterClass, String implementClass);
 
     String elaborateCompileError(String compileError, String classJava, String testClass);
 
-    String elaborateCompileErrorWithClass(String compileError, String classJava, String testClass, String supporterClass);
+    String elaborateCompileErrorWithSupportClass(String compileError, String classJava, String testClass, 
+                                                    String supporterClass);
+
+    String elaborateCompileErrorWithSupportAndImplementClass(String compileError, String classJava, String testClass, 
+                                                            String supporterClass, String implementClass);
 }

@@ -10,7 +10,7 @@ public class ElaboratorImpl implements Elaborator {
     public ElaboratorImpl(final String packageClass, final String className) {
         this.defaultQuestion = 
             "Voglio che mi generi la classe java di nome " + className +" che passa i test forniti "
-            +", la classe non estende e non implementa nulla, il package della classe da creare e' \"" + packageClass + 
+            +" il package della classe da creare e' \"" + packageClass + 
             "\". VOGLIO SOLO IL CODICE NO COMMENTI. Voglio del codice runnabile con le informazioni che ti ho dato. Non" +
             "voglio esempi, voglio solo che funzioni e passi i test";
         }
@@ -24,6 +24,74 @@ public class ElaboratorImpl implements Elaborator {
             content.append(logMapQuestion(logMap));
         }
         content.append("\n\n").append(defaultQuestion);
+        return content.toString();
+    }
+
+    @Override
+    public String elaberateQuestionWithSupportClass(
+            final Map<String, String> logMap, final String classJava, final String testClass, final String supporterClass
+            ) {
+        final StringBuilder content = new StringBuilder();
+        content.append(testClassQuestion(testClass));
+        content.append(supporterClassQuestion(supporterClass));
+        if (!logMap.isEmpty()) {
+            content.append(classJavaQuestion(classJava));
+            content.append(logMapQuestion(logMap));
+        }
+        content.append("\n\n").append(defaultQuestion);
+        return content.toString();
+    }
+
+    @Override
+    public String elaberateQuestionWithSupportAndImplementClass(Map<String, String> logMap, String classJava,
+            String testClass, String supporterClass, String implementClass
+        ) {
+        final StringBuilder content = new StringBuilder();
+        content.append(testClassQuestion(testClass));
+        content.append(supporterClassQuestion(supporterClass));
+        content.append(implementClassQuestion(implementClass));
+        if (!logMap.isEmpty()) {
+            content.append(classJavaQuestion(classJava));
+            content.append(logMapQuestion(logMap));
+        }
+        content.append("\n\n").append(defaultQuestion);
+        return content.toString();
+    }
+
+    @Override
+    public String elaborateCompileError(String compileError, final String classJava, final String testClass) {
+        final StringBuilder content = new StringBuilder();
+        content.append(testClassQuestion(testClass));
+        content.append(classJavaQuestion(classJava));
+        content.append(compileError(compileError));
+        content.append(defaultQuestion);
+        return content.toString();
+    }
+
+    @Override
+    public String elaborateCompileErrorWithSupportClass(String compileError, String classJava, String testClass,
+            String supporterClass
+            ) {
+        final StringBuilder content = new StringBuilder();
+        content.append(testClassQuestion(testClass));
+        content.append(supporterClassQuestion(supporterClass));
+        content.append(classJavaQuestion(classJava));
+        content.append(compileError(compileError));
+        content.append(defaultQuestion);
+        return content.toString();
+    }
+
+    @Override
+    public String elaborateCompileErrorWithSupportAndImplementClass(String compileError, String classJava,
+            String testClass, String supporterClass, String implementClass
+        ) {
+        final StringBuilder content = new StringBuilder();
+        content.append(testClassQuestion(testClass));
+        content.append(supporterClassQuestion(supporterClass));
+        content.append(implementClassQuestion(implementClass));
+        content.append(classJavaQuestion(classJava));
+        content.append(compileError(compileError));
+        content.append(defaultQuestion);
         return content.toString();
     }
 
@@ -48,34 +116,9 @@ public class ElaboratorImpl implements Elaborator {
         return content.toString();
     }
 
-    @Override
-    public String elaborateCompileError(String compileError, final String classJava, final String testClass) {
-        final StringBuilder content = new StringBuilder();
-        content.append(testClassQuestion(testClass));
-        content.append(classJavaQuestion(classJava));
-        content.append(compileError(compileError));
-        content.append(defaultQuestion);
-        return content.toString();
-    }
-
     private String compileError(final String compileError) {
         final StringBuilder content = new StringBuilder();
         content.append("\n\n Dati i seguenti errori di compilazione:\n\n").append(compileError);
-        return content.toString();
-    }
-
-    @Override
-    public String elaberateQuestionWithClass(
-            final Map<String, String> logMap, final String classJava, final String testClass, final String supporterClass
-            ) {
-        final StringBuilder content = new StringBuilder();
-        content.append(testClassQuestion(testClass));
-        content.append(supporterClassQuestion(supporterClass));
-        if (!logMap.isEmpty()) {
-            content.append(classJavaQuestion(classJava));
-            content.append(logMapQuestion(logMap));
-        }
-        content.append("\n\n").append(defaultQuestion);
         return content.toString();
     }
 
@@ -85,16 +128,9 @@ public class ElaboratorImpl implements Elaborator {
         return content.toString();
     }
 
-    @Override
-    public String elaborateCompileErrorWithClass(String compileError, String classJava, String testClass,
-            String supporterClass
-            ) {
+    private String implementClassQuestion(final String implementClass) {
         final StringBuilder content = new StringBuilder();
-        content.append(testClassQuestion(testClass));
-        content.append(supporterClassQuestion(supporterClass));
-        content.append(classJavaQuestion(classJava));
-        content.append(compileError(compileError));
-        content.append(defaultQuestion);
+        content.append("\n\n Data la seguente classe da implementare:\n\n").append(implementClass);
         return content.toString();
     }
     
