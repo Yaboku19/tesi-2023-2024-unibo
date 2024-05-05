@@ -1,5 +1,6 @@
-class: DietFactory
+class: DietFactoryImpl
 support: Diet
+implement : DietFactory
 imports: "
   import static tesi.unibo.dynamic.Diet.Nutrient.*;\n
   import static org.junit.jupiter.api.Assertions.*;\n
@@ -11,7 +12,7 @@ code: "
 	\n
 	@BeforeEach\n
 	public void initFactory() {\n
-		this.factory = new DietFactory();\n
+		this.factory = new DietFactoryImpl();\n
 	}\n
 	\n
 	private void fillProducts(Diet diet) {\n

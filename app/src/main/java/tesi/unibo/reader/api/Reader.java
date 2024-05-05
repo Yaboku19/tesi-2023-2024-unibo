@@ -10,6 +10,7 @@ public abstract class Reader {
     private final String packageTest;
     private String className = "";
     private String supportClassName = "";
+    private String implementClassName = "";
     private final static String pathToSupportClass = "app/src/main/java/tesi/unibo/dynamic/";
 
     public Reader(final String pacakageTest, final String testName) {
@@ -48,6 +49,23 @@ public abstract class Reader {
 
     protected void setSupportClassName(final String supportClassName) {
         this.supportClassName = supportClassName;
+    }
+
+    protected void setImplementClassName(final String implementClassName) {
+        this.implementClassName = implementClassName;
+    }
+
+    public String getImplementClass() {
+        String content = "";
+        if (supportClassName != "") {
+            try {
+                final File testFile = new File(pathToSupportClass + implementClassName + ".java");
+                content = new String(Files.readAllBytes(Paths.get(testFile.toURI())));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return content;
     }
 
     protected String addTab(final int count) {

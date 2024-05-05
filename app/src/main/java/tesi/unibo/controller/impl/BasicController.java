@@ -120,6 +120,7 @@ public class BasicController implements Controller {
     }
 
     private void setCodeJava(final String response) {
+        classJava = "";
         Pattern pattern = Pattern.compile("```java(.*?)```", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(response);
         while (matcher.find()) {
