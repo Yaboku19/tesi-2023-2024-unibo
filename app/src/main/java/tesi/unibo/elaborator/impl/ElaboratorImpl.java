@@ -12,7 +12,7 @@ public class ElaboratorImpl implements Elaborator {
             "Voglio che mi generi la classe java di nome " + className +" che passa i test forniti "
             +" il package della classe da creare e' \"" + packageClass + 
             "\". VOGLIO SOLO IL CODICE NO COMMENTI. Voglio del codice runnabile con le informazioni che ti ho dato. Non" +
-            "voglio esempi, voglio solo che funzioni e passi i test";
+            " voglio esempi, voglio solo che funzioni e passi i test";
         }
 
     @Override

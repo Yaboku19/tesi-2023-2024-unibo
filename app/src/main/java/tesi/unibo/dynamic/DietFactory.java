@@ -6,6 +6,9 @@ public interface DietFactory {
 	/**
 	 * @return a diet where a selection of food is ok if:
 	 * - overall calories are within range [1500,2000]
+	 * - does not care about carbs
+	 * - does not care about protein
+	 * - does not care about fat
 	 */
 	Diet standard();
 	
@@ -13,6 +16,8 @@ public interface DietFactory {
 	 * @return a diet where a selection of food is ok if:
 	 * - overall calories are within range [1000,1500]
 	 * - carbs give overall <=300 calories
+	 * - does not care about protein
+	 * - does not care about fat
 	 */
 	Diet lowCarb();
 	
@@ -21,6 +26,7 @@ public interface DietFactory {
 	 * - overall calories are within range [2000,2500]
 	 * - carbs give overall <=300 calories
 	 * - proteins give overall >=1300 calories
+	 * - does not care about fat
 	 */
 	Diet highProtein();
 	
