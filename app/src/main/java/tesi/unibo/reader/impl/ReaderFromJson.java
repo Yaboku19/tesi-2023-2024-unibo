@@ -20,8 +20,8 @@ public class ReaderFromJson extends Reader{
     private String generateTestFileContent(final String data) {
         final JSONObject json = new JSONObject(data);
         setClassName(json.getString("class"));
-        setSupportClassName(json.getString("support"));
-        setImplementClassName(json.getString("implement"));
+        setSupportClassName(json.optString("support", ""));
+        setImplementClassName(json.optString("implement", ""));
         final StringBuilder content = new StringBuilder();
         content.append("package " + getPackageTest() + ";").append("\n");
         for (int i = 0; i < json.getJSONArray("imports").length(); i++) {

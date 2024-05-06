@@ -20,8 +20,8 @@ public class ReaderFromYml extends Reader {
 
     private String generateTestFileContent(final Map<String, String> data) {
         setClassName(data.get("class"));
-        setSupportClassName(data.get("support"));
-        setImplementClassName(data.get("implement"));
+        setSupportClassName(data.get("support") == null ? "" : data.get("support"));
+        setImplementClassName(data.get("implement") == null ? "" : data.get("implement"));
         final StringBuilder content = new StringBuilder();
         content.append("package " + getPackageTest() + ";").append("\n");
         content.append(data.get("imports").replaceAll("(?m)^\\s+", "")).append("\n");

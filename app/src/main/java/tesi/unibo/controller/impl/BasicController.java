@@ -71,20 +71,8 @@ public class BasicController implements Controller {
     }
 
     private void generateClass(final Map<String, String> logMap) {
-        String question = "";
-        if(reader.getSupportClass() == "") {
-            question = this.elaborator.elaborateQuestion(logMap, classJava, testFileContent);
-        } else {
-            if (reader.getImplementClass() == "") {
-                question = this
-                    .elaborator.elaberateQuestionWithSupportClass(logMap, classJava, testFileContent, reader.getSupportClass());
-            } else {
-                question = this
-                    .elaborator.elaberateQuestionWithSupportAndImplementClass(logMap, classJava, testFileContent,
-                                                                         reader.getSupportClass(), reader.getImplementClass());
-            }
-            
-        }
+        String question = this.elaborator.elaborateQuestion(logMap, classJava, testFileContent, reader.getSupportClass(),
+                                                            reader.getImplementClass());
         
         System.out.println("question = \n" + question);
         System.out.println("--------------------------------");
@@ -101,20 +89,8 @@ public class BasicController implements Controller {
         try {
             String compileError = this.generator.generateClass(classJava, reader.getClassName());
             while (compileError != "") {
-                if(reader.getSupportClass() == "") {
-                    question = this.elaborator.elaborateCompileError(compileError, classJava, testFileContent);
-                } else {
-                    if (reader.getImplementClass() == "") {
-                        question = this.elaborator
-                            .elaborateCompileErrorWithSupportClass(compileError, classJava, testFileContent, 
-                                                                    reader.getSupportClass());
-                    } else {
-                        question = this.elaborator
-                            .elaborateCompileErrorWithSupportAndImplementClass(compileError, classJava, testFileContent,
-                                                                            reader.getSupportClass(), reader.getImplementClass());
-                    }
-                    
-                }
+                question = this.elaborator.elaborateCompileError(compileError, classJava, testFileContent,
+                                                                reader.getSupportClass(), reader.getImplementClass());
                 System.out.println("question = \n" + question);
                 System.out.println("--------------------------------");
                 response = this.comunicator.generateCode( question);
