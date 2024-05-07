@@ -2,5 +2,5 @@ package tesi.unibo.controller.api;
 
 public interface Controller {
 
-    void play();
+    void play() throws InterruptedException;
 }

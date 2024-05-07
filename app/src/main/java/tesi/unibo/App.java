@@ -5,6 +5,10 @@ import tesi.unibo.controller.impl.BasicController;
 public class App {
 
     public static void main(String[] args) {
-        new BasicController().play();
+        try {
+            new BasicController().play();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

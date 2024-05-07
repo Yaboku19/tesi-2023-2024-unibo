@@ -9,10 +9,10 @@ public class ElaboratorImpl implements Elaborator {
     private final String defaultQuestion;
     public ElaboratorImpl(final String packageClass, final String className) {
         this.defaultQuestion = 
-            "Voglio che mi generi la classe java di nome " + className +" che passa i test forniti "
-            +" il package della classe da creare e' \"" + packageClass + 
-            "\". VOGLIO SOLO IL CODICE NO COMMENTI. Voglio del codice runnabile con le informazioni che ti ho dato. Non" +
-            " voglio esempi, voglio solo che funzioni e passi i test";
+            "I want you to generate a Java class named " + className +" that passes the provided tests. "
+            +" The package for the class to be created is \"" + packageClass + 
+            "\". I WANT ONLY THE CODE, NO COMMENTS. I want runnable code with the information I've given you." +
+            " I don't want examples, I just want it to work and pass the tests.";
         }
 
     @Override
@@ -32,7 +32,7 @@ public class ElaboratorImpl implements Elaborator {
             content.append(classJavaQuestion(classJava));
             content.append(logMapQuestion(logMap));
         }
-        content.append("\n\n").append(defaultQuestion);
+        content.append("\n'\n").append(defaultQuestion);
         return content.toString();
     }
 
@@ -51,25 +51,25 @@ public class ElaboratorImpl implements Elaborator {
         }
         content.append(classJavaQuestion(classJava));
         content.append(compileError(compileError));
-        content.append(defaultQuestion);
+        content.append("\n'\n").append(defaultQuestion);
         return content.toString();
     }
 
     private String testClassQuestion(final String testClass) {
         final StringBuilder content = new StringBuilder();
-        content.append("Data la seguente classe test:\n\n").append(testClass);
+        content.append("Given the following test class:\n'\n").append(testClass);
         return content.toString();
     }
 
     private String classJavaQuestion(final String classJava) {
         final StringBuilder content = new StringBuilder();
-        content.append("\n\n Data la tua precedente implementazione:\n\n").append(classJava);
+        content.append("\n'\nGiven your previous implementation:\n'\n").append(classJava);
         return content.toString();
     }
 
     private String logMapQuestion(final Map<String, String> logMap) {
         final StringBuilder content = new StringBuilder();
-        content.append("\n\n Dati i seguenti test falliti dalla tua precedente implementazione:\n\n");
+        content.append("\n'\nGiven the following tests failed by your previous implementation:\n'\n");
         for (var entry : logMap.entrySet()) {
             content.append("\t- " + entry.getKey() + ": " + entry.getValue() + "\n");
         }
@@ -78,19 +78,19 @@ public class ElaboratorImpl implements Elaborator {
 
     private String compileError(final String compileError) {
         final StringBuilder content = new StringBuilder();
-        content.append("\n\n Dati i seguenti errori di compilazione:\n\n").append(compileError);
+        content.append("\n'\nGiven the following compilation errors:\n'\n").append(compileError);
         return content.toString();
     }
 
     private String supporterClassQuestion(final String supporterClass) {
         final StringBuilder content = new StringBuilder();
-        content.append("\n\n Data la seguente classe di supporto:\n\n").append(supporterClass);
+        content.append("\n'\nGiven the following support class:\n'\n").append(supporterClass);
         return content.toString();
     }
 
     private String implementClassQuestion(final String implementClass) {
         final StringBuilder content = new StringBuilder();
-        content.append("\n\n Data la seguente classe da implementare:\n\n").append(implementClass);
+        content.append("\n'\nGiven the following class to implement:\n'\n").append(implementClass);
         return content.toString();
     }
     

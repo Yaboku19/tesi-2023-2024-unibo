@@ -1,81 +1,120 @@
-
 package tesi.unibo.dynamic;
-
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class DietFactoryImpl implements DietFactory {
 
-    private static class DietImpl implements Diet {
-        private int minCalories;
-        private int maxCalories;
-        private Integer maxCarbCalories;
-        private Integer maxProteinCalories;
-        private Integer minProteinCalories;
-        private Integer minFatCalories;
-        private Integer maxFatAndProteinCalories;
-        private Map<String, Map<Diet.Nutrient, Integer>> foodInfo;
+	@Override
+	public Diet standard() {
+		return new Diet() {
 
-        public DietImpl(int minCalories, int maxCalories, Integer maxCarbCalories, Integer maxProteinCalories,
-                        Integer minProteinCalories, Integer minFatCalories, Integer maxFatAndProteinCalories) {
-            this.minCalories = minCalories;
-            this.maxCalories = maxCalories;
-            this.maxCarbCalories = maxCarbCalories;
-            this.maxProteinCalories = maxProteinCalories;
-            this.minProteinCalories = minProteinCalories;
-            this.minFatCalories = minFatCalories;
-            this.maxFatAndProteinCalories = maxFatAndProteinCalories;
-            this.foodInfo = new HashMap<>();
-        }
+			private final Map<String, Map<Diet.Nutrient, Integer>> foodMap = new HashMap<>();
 
-        @Override
-        public void addFood(String name, Map<Diet.Nutrient, Integer> nutritionMap) {
-            foodInfo.put(name, nutritionMap);
-        }
+			@Override
+			public void addFood(String name, Map<Diet.Nutrient, Integer> nutritionMap) {
+				foodMap.put(name, nutritionMap);
+			}
 
-        @Override
-        public boolean isValid(Map<String, Double> dietMap) {
-            int totalCalories = 0;
-            int totalCarbCalories = 0;
-            int totalProteinCalories = 0;
-            int totalFatCalories = 0;
+			@Override
+			public boolean isValid(Map<String, Double> dietMap) {
+				double overallCalories = dietMap.keySet().stream().mapToDouble(food -> {
+					double weight = dietMap.get(food);
+					return foodMap.get(food).values().stream().mapToDouble(calories -> (calories * weight) / 100).sum();
+				}).sum();
+				return overallCalories >= 1500 && overallCalories <= 2000;
+			}
+		};
+	}
 
-            for (Map.Entry<String, Double> entry : dietMap.entrySet()) {
-                if (foodInfo.containsKey(entry.getKey())) {
-                    Map<Diet.Nutrient, Integer> nutritionMap = foodInfo.get(entry.getKey());
-                    totalCalories += (int) (entry.getValue() * 100 * nutritionMap.values().stream().mapToInt(Integer::intValue).sum() / 100);
-                    totalCarbCalories += (int) (entry.getValue() * 100 * nutritionMap.get(Diet.Nutrient.CARBS) / 100);
-                    totalProteinCalories += (int) (entry.getValue() * 100 * nutritionMap.get(Diet.Nutrient.PROTEINS) / 100);
-                    totalFatCalories += (int) (entry.getValue() * 100 * nutritionMap.get(Diet.Nutrient.FAT) / 100);
-                }
-            }
+	@Override
+	public Diet lowCarb() {
+		return new Diet() {
 
-            return totalCalories >= minCalories && totalCalories <= maxCalories &&
-                    (maxCarbCalories == null || totalCarbCalories <= maxCarbCalories) &&
-                    (maxProteinCalories == null || totalProteinCalories >= maxProteinCalories) &&
-                    (minProteinCalories == null || totalProteinCalories >= minProteinCalories) &&
-                    (minFatCalories == null || totalFatCalories >= minFatCalories) &&
-                    (maxFatAndProteinCalories == null || totalFatCalories + totalProteinCalories <= maxFatAndProteinCalories);
-        }
-    }
+			private final Map<String, Map<Diet.Nutrient, Integer>> foodMap = new HashMap<>();
 
-    @Override
-    public Diet standard() {
-        return new DietImpl(1500, 2000, null, null, null, null, null);
-    }
+			@Override
+			public void addFood(String name, Map<Diet.Nutrient, Integer> nutritionMap) {
+				foodMap.put(name, nutritionMap);
+			}
 
-    @Override
-    public Diet lowCarb() {
-        return new DietImpl(1000, 1500, null, 300, null, null, null);
-    }
+			@Override
+			public boolean isValid(Map<String, Double> dietMap) {
+				double overallCalories = dietMap.keySet().stream().mapToDouble(food -> {
+					double weight = dietMap.get(food);
+					return foodMap.get(food).values().stream().mapToDouble(calories -> (calories * weight) / 100).sum();
+				}).sum();
+				double overallCarbs = dietMap.keySet().stream().mapToDouble(food -> {
+					double weight = dietMap.get(food);
+					return foodMap.get(food).get(Nutrient.CARBS)* weight / 100;
+				}).sum();
+				return overallCalories >= 1000 && overallCalories <= 1500 && overallCarbs <= 300;
+		    }
+		};
+	}
 
-    @Override
-    public Diet highProtein() {
-        return new DietImpl(2000, 2500, null, 300, 1300, null, null);
-    }
+	@Override
+	public Diet highProtein() {
+		return new Diet() {
 
-    @Override
-    public Diet balanced() {
-        return new DietImpl(1600, 2000, 600, null, 600, 400, 1100);
-    }
+			private final Map<String, Map<Diet.Nutrient, Integer>> foodMap = new HashMap<>();
+
+			@Override
+			public void addFood(String name, Map<Diet.Nutrient, Integer> nutritionMap) {
+				foodMap.put(name, nutritionMap);
+			}
+	
+			@Override
+			public boolean isValid(Map<String, Double> dietMap) {
+				double overallCalories = dietMap.keySet().stream().mapToDouble(food -> {
+					double weight = dietMap.get(food);
+					return foodMap.get(food).values().stream().mapToDouble(calories -> (calories * weight) / 100).sum();
+				}).sum();
+				double overallCarbs = dietMap.keySet().stream().mapToDouble(food -> {
+					double weight = dietMap.get(food);
+					return foodMap.get(food).get(Nutrient.CARBS)* weight / 100;
+				}).sum();
+				double overallProteins = dietMap.keySet().stream().mapToDouble(food -> {
+					double weight = dietMap.get(food);return foodMap.get(food).get(Nutrient.PROTEINS)* weight / 100;
+				}).sum();
+				return overallCalories >= 2000 && overallCalories <= 2500 && overallCarbs <= 300 && overallProteins >= 1300;
+			}
+	    	};
+	}
+
+	@Override
+	public Diet balanced() {
+		return new Diet() {
+
+			private final Map<String, Map<Diet.Nutrient, Integer>> foodMap = new HashMap<>();
+
+			@Override
+			public void addFood(String name, Map<Diet.Nutrient, Integer> nutritionMap) {
+				foodMap.put(name, nutritionMap);
+			}
+
+			@Override
+			public boolean isValid(Map<String, Double> dietMap) {
+				double overallCalories = dietMap.keySet().stream().mapToDouble(food -> {
+					double weight = dietMap.get(food);
+					return foodMap.get(food).values().stream().mapToDouble(calories -> (calories * weight) / 100).sum();
+				}).sum();
+				double overallCarbs = dietMap.keySet().stream().mapToDouble(food -> {
+					double weight = dietMap.get(food);
+					return foodMap.get(food).get(Nutrient.CARBS)* weight / 100;
+				}).sum();
+				double overallProteins = dietMap.keySet().stream().mapToDouble(food -> {
+					double weight = dietMap.get(food);
+					return foodMap.get(food).get(Nutrient.PROTEINS)* weight / 100;
+				}).sum();
+				double overallFat  = dietMap.keySet().stream().mapToDouble(food -> {
+					double weight = dietMap.get(food);
+					return foodMap.get(food).get(Nutrient.FAT)* weight / 100;
+			    }).sum();
+			    double fatPlusProtein = overallFat + overallProteins;
+			    return overallCalories >= 1600 && overallCalories <= 2000 && overallCarbs >= 600 && overallProteins >= 600 &&
+				    overallFat >= 400 && fatPlusProtein <= 1100;
+		    }
+	    };
+	}
+
 }

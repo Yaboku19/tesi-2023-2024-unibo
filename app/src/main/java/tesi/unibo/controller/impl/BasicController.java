@@ -1,9 +1,6 @@
 package tesi.unibo.controller.impl;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-
 import tesi.unibo.controller.api.Controller;
 import tesi.unibo.elaborator.api.Elaborator;
 import tesi.unibo.elaborator.impl.ElaboratorImpl;
@@ -19,6 +16,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class BasicController implements Controller {
     private static final String URL_RESOURCE = "dietTest.yml";
@@ -33,6 +32,9 @@ public class BasicController implements Controller {
     private final Elaborator elaborator;
     private Class<?> testClass;
     private String classJava = "";
+    
+    private Queue<Long> callTimes = new LinkedList<>();
+    private static final long INTERVAL = 60000; // Intervallo di tempo in millisecondi (60 secondi)
     
 
     public BasicController () {
@@ -52,7 +54,7 @@ public class BasicController implements Controller {
     }
 
     @Override
-    public void play() {
+    public void play() throws InterruptedException {
         final Map<String, String> logMap = new HashMap<>();
         generateClass(logMap);
         try {
@@ -70,21 +72,16 @@ public class BasicController implements Controller {
         }
     }
 
-    private void generateClass(final Map<String, String> logMap) {
+    private void generateClass(final Map<String, String> logMap) throws InterruptedException {
         String question = this.elaborator.elaborateQuestion(logMap, classJava, testFileContent, reader.getSupportClass(),
                                                             reader.getImplementClass());
         
         System.out.println("question = \n" + question);
         System.out.println("--------------------------------");
-        String response = this.comunicator.generateCode(question);
+        Thread.sleep(tryCall());
+        String response = this.comunicator.generateCode( question);
         System.out.println("response = \n" + response);
         System.out.println("--------------------------------");
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         setCodeJava(response);
         try {
             String compileError = this.generator.generateClass(classJava, reader.getClassName());
@@ -93,15 +90,10 @@ public class BasicController implements Controller {
                                                                 reader.getSupportClass(), reader.getImplementClass());
                 System.out.println("question = \n" + question);
                 System.out.println("--------------------------------");
+                Thread.sleep(tryCall());
                 response = this.comunicator.generateCode( question);
                 System.out.println("response = \n" + response);
                 System.out.println("--------------------------------");
-                try {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                    reader.readLine();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 setCodeJava(response);
                 compileError = this.generator.generateClass(classJava, reader.getClassName());
             }
@@ -121,6 +113,25 @@ public class BasicController implements Controller {
         }
         if (classJava == "") {
             classJava = response;
+        }
+    }
+
+    public synchronized long tryCall() {
+        long currentTime = System.currentTimeMillis();
+
+        // Pulisce la coda rimuovendo le chiamate più vecchie di 60 secondi
+        while (!callTimes.isEmpty() && (currentTime - callTimes.peek() > INTERVAL)) {
+            callTimes.poll();
+        }
+
+        // Controlla se sono state fatte 3 chiamate nell'ultimo minuto
+        if (callTimes.size() < 3) {
+            callTimes.add(currentTime);
+            return 0;  // Ritorna 0 per indicare che la funzione è stata chiamata subito
+        } else {
+            // Calcola il tempo di attesa necessario fino alla prossima possibile chiamata
+            long nextValidTime = INTERVAL - (currentTime - callTimes.peek());
+            return nextValidTime;  // Ritorna il tempo di attesa in millisecondi
         }
     }
     

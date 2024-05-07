@@ -1,4 +1,4 @@
-package tesi.unibo.dynamic;
+package tesi.unibo.dynamic.help.diet;
 
 public interface DietFactory {
 	
