@@ -34,7 +34,8 @@ public class BasicController implements Controller {
     private String classJava = "";
     
     private Queue<Long> callTimes = new LinkedList<>();
-    private static final long INTERVAL = 60000; // Intervallo di tempo in millisecondi (60 secondi)
+    private static final long INTERVAL = 60000;
+    private static final int CALL = 3;
     
 
     public BasicController () {
@@ -74,34 +75,27 @@ public class BasicController implements Controller {
 
     private void generateClass(final Map<String, String> logMap) throws InterruptedException {
         String question = this.elaborator.elaborateQuestion(logMap, classJava, testFileContent, reader.getSupportClass(),
-                                                            reader.getImplementClass());
-        
-        System.out.println("question = \n" + question);
-        System.out.println("--------------------------------");
+                                                            reader.getInterfaceClass());
         Thread.sleep(tryCall());
-        String response = this.comunicator.generateCode( question);
-        System.out.println("response = \n" + response);
-        System.out.println("--------------------------------");
-        setCodeJava(response);
-        try {
-            String compileError = this.generator.generateClass(classJava, reader.getClassName());
-            while (compileError != "") {
-                question = this.elaborator.elaborateCompileError(compileError, classJava, testFileContent,
-                                                                reader.getSupportClass(), reader.getImplementClass());
-                System.out.println("question = \n" + question);
-                System.out.println("--------------------------------");
-                Thread.sleep(tryCall());
-                response = this.comunicator.generateCode( question);
-                System.out.println("response = \n" + response);
-                System.out.println("--------------------------------");
-                setCodeJava(response);
+        String compileError = "";
+        do {
+            System.out.println("question = \n" + question);
+            System.out.println("--------------------------------");
+            String response = this.comunicator.generateCode( question);
+            System.out.println("response = \n" + response);
+            System.out.println("--------------------------------");
+            setCodeJava(response);
+            try {
                 compileError = this.generator.generateClass(classJava, reader.getClassName());
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
             }
-            
-        } catch (IOException e) {
-            System.out.println("ERROR! invalid class");
-            System.exit(1);
-        }
+            if (compileError != "") {
+                question = this.elaborator.elaborateCompileError(compileError, classJava, testFileContent,
+                                                                reader.getSupportClass(), reader.getInterfaceClass());
+            }
+        }while(compileError != "");
     }
 
     private void setCodeJava(final String response) {
@@ -118,20 +112,15 @@ public class BasicController implements Controller {
 
     public synchronized long tryCall() {
         long currentTime = System.currentTimeMillis();
-
-        // Pulisce la coda rimuovendo le chiamate più vecchie di 60 secondi
         while (!callTimes.isEmpty() && (currentTime - callTimes.peek() > INTERVAL)) {
             callTimes.poll();
         }
-
-        // Controlla se sono state fatte 3 chiamate nell'ultimo minuto
-        if (callTimes.size() < 3) {
+        if (callTimes.size() < CALL) {
             callTimes.add(currentTime);
-            return 0;  // Ritorna 0 per indicare che la funzione è stata chiamata subito
+            return 0;
         } else {
-            // Calcola il tempo di attesa necessario fino alla prossima possibile chiamata
             long nextValidTime = INTERVAL - (currentTime - callTimes.peek());
-            return nextValidTime;  // Ritorna il tempo di attesa in millisecondi
+            return nextValidTime; 
         }
     }
     

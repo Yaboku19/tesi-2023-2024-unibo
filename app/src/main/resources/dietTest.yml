@@ -1,6 +1,6 @@
 class: DietFactoryImpl
 support: Diet
-implement : DietFactory
+interface : DietFactory
 imports: "
   import static tesi.unibo.dynamic.Diet.Nutrient.*;\n
   import static org.junit.jupiter.api.Assertions.*;\n
@@ -29,7 +29,7 @@ code: "
 		var diet = this.factory.standard();\n
 		this.fillProducts(diet);\n
 		assertTrue(diet.isValid(Map.of(\"pasta\",200.0,\"pollo\",300.0,\"grana\",200.0)), \n
-		\"The amount of calories is 1900, so it should be true\"); // 800+300+800 calories\n
+		\"calories is 1900\"); // 800+300+800 calories\n
 		assertFalse(diet.isValid(Map.of(\"pasta\",200.0,\"pollo\",300.0,\"grana\",50.0))); // 800+300+200 calories: too low!!\n
 		assertFalse(diet.isValid(Map.of(\"pasta\",300.0,\"pollo\",300.0,\"grana\",200.0,\"broccoli\",300.0))); // 1200+300+800+105 calories: too much!!\n
 	}\n
@@ -39,7 +39,7 @@ code: "
 		var diet = this.factory.lowCarb();\n
 		this.fillProducts(diet);\n
 		assertTrue(diet.isValid(Map.of(\"pollo\",1000.0)), \n
-		\"The amount of calories is 1000 and the amount of carbs is 100, so it should be true\"); // ok calories, ok carbs\n
+		\"calories is 1000 and carbs is 100\"); // ok calories, ok carbs\n
 		assertFalse(diet.isValid(Map.of(\"pasta\",200.0,\"pollo\",300.0,\"grana\",200.0))); // 800+300+800 calories, too much!\n
 		assertFalse(diet.isValid(Map.of(\"pasta\",400.0))); // ok calories, but too much carbs\n
 	}\n
@@ -48,7 +48,8 @@ code: "
 	public void testHighProtein() {\n
 		var diet = this.factory.highProtein();\n
 		this.fillProducts(diet);\n
-		assertTrue(diet.isValid(Map.of(\"pollo\",2500.0))); // ok calories, ok proteins\n
+		assertTrue(diet.isValid(Map.of(\"pollo\",2500.0)), \n
+		\"calories is 2500, carbs is 250, protein is 1500\"); // ok calories, ok proteins\n
 		assertFalse(diet.isValid(Map.of(\"pasta\",200.0,\"pollo\",300.0,\"grana\",200.0))); // 800+300+800 calories, too few!\n
 		assertFalse(diet.isValid(Map.of(\"grana\",500.0))); // ok calories, but too few proteins\n
 	}\n

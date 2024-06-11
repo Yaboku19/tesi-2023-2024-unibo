@@ -5,8 +5,8 @@ import java.util.Map;
 public interface Elaborator {
     
     String elaborateQuestion(Map<String, String> logMap, String classJava, String testClass, String supporterClass, 
-                            String implementClass);
+                            String interfaceClass);
 
     String elaborateCompileError(String compileError, String classJava, String testClass, String supporterClass, 
-                                String implementClass);
+                                String interfaceClass);
 }

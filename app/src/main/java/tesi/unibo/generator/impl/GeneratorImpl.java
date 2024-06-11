@@ -28,11 +28,14 @@ public class GeneratorImpl implements Generator {
         final File testFile = Generator.generateFile(TEXT_PATH, packageTest, testName, EXTENSION, testFileContent);
 
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        compiler.run(null, null, null, "-d",
+        int result = compiler.run(null, null, null, "-d",
                         "." + BUILD_PATH_TEST, testFile.getAbsolutePath());
 
         final URL testUrl = new File(System.getProperty("user.dir") + BUILD_PATH_TEST).toURI().toURL();
         final URLClassLoader testClassLoader = URLClassLoader.newInstance(new URL[]{testUrl});
+        if (result != 0) {
+            System.exit(result);
+        }
         return testClassLoader.loadClass(packageTest + "." + testName);
     }
 

@@ -24,7 +24,7 @@ private DietFactory factory;
 		var diet = this.factory.standard();
 		this.fillProducts(diet);
 		assertTrue(diet.isValid(Map.of("pasta",200.0,"pollo",300.0,"grana",200.0)), 
-		"The amount of calories is 1900, so it should be true"); // 800+300+800 calories
+		"calories is 1900"); // 800+300+800 calories
 		assertFalse(diet.isValid(Map.of("pasta",200.0,"pollo",300.0,"grana",50.0))); // 800+300+200 calories: too low!!
 		assertFalse(diet.isValid(Map.of("pasta",300.0,"pollo",300.0,"grana",200.0,"broccoli",300.0))); // 1200+300+800+105 calories: too much!!
 	}
@@ -33,7 +33,7 @@ private DietFactory factory;
 		var diet = this.factory.lowCarb();
 		this.fillProducts(diet);
 		assertTrue(diet.isValid(Map.of("pollo",1000.0)), 
-		"The amount of calories is 1000 and the amount of carbs is 100, so it should be true"); // ok calories, ok carbs
+		"calories is 1000 and carbs is 100"); // ok calories, ok carbs
 		assertFalse(diet.isValid(Map.of("pasta",200.0,"pollo",300.0,"grana",200.0))); // 800+300+800 calories, too much!
 		assertFalse(diet.isValid(Map.of("pasta",400.0))); // ok calories, but too much carbs
 	}
@@ -41,7 +41,8 @@ private DietFactory factory;
 	public void testHighProtein() {
 		var diet = this.factory.highProtein();
 		this.fillProducts(diet);
-		assertTrue(diet.isValid(Map.of("pollo",2500.0))); // ok calories, ok proteins
+		assertTrue(diet.isValid(Map.of("pollo",2500.0)), 
+		"calories is 2500, carbs is 250, protein is 1500"); // ok calories, ok proteins
 		assertFalse(diet.isValid(Map.of("pasta",200.0,"pollo",300.0,"grana",200.0))); // 800+300+800 calories, too few!
 		assertFalse(diet.isValid(Map.of("grana",500.0))); // ok calories, but too few proteins
 	}

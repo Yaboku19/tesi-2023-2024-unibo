@@ -25,7 +25,7 @@ public class ChatGPTComunicator implements Comunicator {
             data.put("model", "gpt-3.5-turbo");
             data.put("messages", getMessages(question));
             data.put("max_tokens", 4000);
-            data.put("temperature", 1.3);
+            data.put("temperature", 1.0);
             con.setDoOutput(true);
             con.getOutputStream().write(data.toString().getBytes());
 

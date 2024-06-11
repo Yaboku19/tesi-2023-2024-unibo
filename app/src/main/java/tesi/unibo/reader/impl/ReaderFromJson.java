@@ -21,7 +21,7 @@ public class ReaderFromJson extends Reader{
         final JSONObject json = new JSONObject(data);
         setClassName(json.getString("class"));
         setSupportClassName(json.optString("support", ""));
-        setImplementClassName(json.optString("implement", ""));
+        setInterfaceClassName(json.optString("interface", ""));
         final StringBuilder content = new StringBuilder();
         content.append("package " + getPackageTest() + ";").append("\n");
         for (int i = 0; i < json.getJSONArray("imports").length(); i++) {
