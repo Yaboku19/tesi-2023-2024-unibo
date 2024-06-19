@@ -22,9 +22,9 @@ public class ChatGPTComunicator implements Comunicator {
             con.setRequestProperty("Authorization", "Bearer " + KEY);
 
             final JSONObject data = new JSONObject();
-            data.put("model", "gpt-3.5-turbo");
+            data.put("model", "gpt-4-turbo");
             data.put("messages", getMessages(question));
-            data.put("max_tokens", 4000);
+            data.put("max_tokens", 2000);
             data.put("temperature", 1.0);
             con.setDoOutput(true);
             con.getOutputStream().write(data.toString().getBytes());

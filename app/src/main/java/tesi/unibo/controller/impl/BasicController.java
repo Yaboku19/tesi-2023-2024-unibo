@@ -32,12 +32,10 @@ public class BasicController implements Controller {
     private final Elaborator elaborator;
     private Class<?> testClass;
     private String classJava = "";
-    
     private Queue<Long> callTimes = new LinkedList<>();
     private static final long INTERVAL = 60000;
-    private static final int CALL = 3;
+    private static final int CALL = 500;
     
-
     public BasicController () {
         this.comunicator = new ChatGPTComunicator();
         this.generator = new GeneratorImpl(PACKAGE_TEST, PACKAGE_CLASS);
