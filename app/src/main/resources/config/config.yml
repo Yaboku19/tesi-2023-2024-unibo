@@ -1,0 +1,5 @@
+urlResources: "test/yaml/recursiveIterator.yml"
+packageClass: "tesi.unibo.dynamic"
+packageTest: "tesi.unibo.dynamic"
+testName: "DynamicTest"
+keyGPT: ""

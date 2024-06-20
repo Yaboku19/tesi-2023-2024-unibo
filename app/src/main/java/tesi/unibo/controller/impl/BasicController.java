@@ -1,6 +1,12 @@
 package tesi.unibo.controller.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+
 import tesi.unibo.controller.api.Controller;
 import tesi.unibo.elaborator.api.Elaborator;
 import tesi.unibo.elaborator.impl.ElaboratorImpl;
@@ -15,15 +21,19 @@ import tesi.unibo.tester.impl.TesterJava;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.yaml.snakeyaml.Yaml;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class BasicController implements Controller {
-    private static final String URL_RESOURCE = "dietTest.yml";
-    private static final String PACKAGE_CLASS = "tesi.unibo.dynamic";
-    private static final String PACKAGE_TEST = "tesi.unibo.dynamic";
-    private static final String TEST_NAME = "DynamicTest";
+    private static final String URL_SETTINGS = "config/config.yml";
+    private final String urlResource;
+    private final String packageClass;
+    private final String packageTest;
+    private final String testName;
     private final Comunicator comunicator;
     private final Generator generator;
     private final Tester tester;
@@ -33,23 +43,38 @@ public class BasicController implements Controller {
     private Class<?> testClass;
     private String classJava = "";
     private Queue<Long> callTimes = new LinkedList<>();
-    private static final long INTERVAL = 60000;
-    private static final int CALL = 500;
+    private final static long INTERVAL = 6000;
+    private final static int CALL = 500;
     
     public BasicController () {
-        this.comunicator = new ChatGPTComunicator();
-        this.generator = new GeneratorImpl(PACKAGE_TEST, PACKAGE_CLASS);
+        Map<String, String> file = settings();
+        urlResource = file.get("urlResources");
+        packageClass = file.get("packageClass");
+        packageTest = file.get("packageTest");
+        testName = file.get("testName");
+        this.comunicator = new ChatGPTComunicator(file.get("keyGPT"));
+        this.generator = new GeneratorImpl(packageTest, packageClass);
         this.tester = new TesterJava();
-        this.reader = new ReaderFromYml(PACKAGE_TEST, TEST_NAME);
+        this.reader = new ReaderFromYml(packageTest, testName);
         
         String dataFile = "";
         try  {
-            dataFile = this.reader.readFromFile(URL_RESOURCE);
+            dataFile = this.reader.readFromFile(urlResource);
         } catch (Exception e) {
             e.printStackTrace();
         }
         this.testFileContent = dataFile;
-        elaborator = new ElaboratorImpl(PACKAGE_CLASS, reader.getClassName());
+        elaborator = new ElaboratorImpl(packageClass, reader.getClassName());
+    }
+
+    private Map<String, String> settings() {
+        try {
+            final InputStream inputStream = new FileInputStream(new File(ClassLoader.getSystemResource(URL_SETTINGS).toURI()));
+            return new Yaml().load(inputStream);
+        } catch (FileNotFoundException | URISyntaxException e) {
+            System.exit(1);
+        }
+        return new HashMap<>();
     }
 
     @Override
@@ -57,7 +82,7 @@ public class BasicController implements Controller {
         final Map<String, String> logMap = new HashMap<>();
         generateClass(logMap);
         try {
-            this.testClass = generator.generateTest(testFileContent, TEST_NAME);
+            this.testClass = generator.generateTest(testFileContent, testName);
         } catch (Exception e) {
             System.out.println("ERROR! invalid test");
             System.exit(1);

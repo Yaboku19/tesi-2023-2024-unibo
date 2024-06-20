@@ -1,0 +1,95 @@
+class: RecursiveIteratorHelpersImpl
+support: RecursiveIterator
+interface : RecursiveIteratorHelpers
+imports: "
+  import static org.junit.jupiter.api.Assertions.*;\n
+  import java.util.*;\n
+	import org.junit.jupiter.api.BeforeEach;\n
+	import org.junit.jupiter.api.Test;\n
+	import tesi.unibo.dynamic.common.Pair;"
+code: "
+  private RecursiveIteratorHelpers factory;\n
+  \n
+	@BeforeEach\n
+	public void init() {\n
+		this.factory = new RecursiveIteratorHelpersImpl();\n
+	}\n
+  \n
+	@Test\n
+	public void testFromList() {\n
+		var rit = this.factory.fromList(List.of(10,20,30));\n
+		assertEquals(10, rit.getElement().intValue()); // 10 è il primo elemento\n
+		assertEquals(10, rit.getElement().intValue()); // anche in chiamate successive\n
+		assertEquals(10, rit.getElement().intValue());\n
+		rit = rit.next();							   // si ottiene il prossimo iteratore\n
+		assertEquals(20, rit.getElement().intValue()); // 20 è il prossimo elemento\n
+		assertEquals(20, rit.getElement().intValue());\n
+		rit = rit.next();							   // si ottiene il prossimo iteratore	\n		
+		assertEquals(30, rit.getElement().intValue());\n
+		assertEquals(30, rit.getElement().intValue());\n
+		assertEquals(30, rit.getElement().intValue());\n
+		rit = rit.next();\n
+		assertNull(rit);	// iterazione finita\n
+    \n
+		assertNull(this.factory.fromList(List.of())); // iterazione vuota\n
+	}\n
+  \n
+	@Test\n
+	public void testToList() {\n
+		var rit = this.factory.fromList(List.of(10,20,30));\n
+		// lista ottenuta dai primi 10 elementi dell'iteratore, che sono troppi, quindi prendi i 3 dell'iteratore\n
+		assertEquals(List.of(10,20,30), this.factory.toList(rit,10));\n
+		var rit2 = this.factory.fromList(List.of(10,20,30));\n
+		// lista ottenuta dai primi 2 elementi dell'iteratore\n
+		assertEquals(List.of(10,20), this.factory.toList(rit2,2));\n
+	}\n
+  \n
+	@Test\n
+	public void testZip() {\n
+		var rit = this.factory.fromList(List.of(10,20,30,40));\n
+		var rit2 = this.factory.fromList(List.of(\"a\",\"b\",\"c\"));\n
+		var ritZip = this.factory.zip(rit,rit2);\n
+		assertEquals(new Pair<>(10,\"a\"), ritZip.getElement());\n
+		ritZip = ritZip.next();\n
+		assertEquals(new Pair<>(20,\"b\"), ritZip.getElement());\n
+		ritZip = ritZip.next();\n
+		assertEquals(new Pair<>(30,\"c\"), ritZip.getElement());\n
+		ritZip = ritZip.next();\n
+		// nota, non ci sono più di 3 elementi... \n
+		assertNull(ritZip);\n
+	}\n
+  \n
+	@Test\n
+	public void testZipWithIndex() {\n
+		var rit = this.factory.fromList(List.of(10,20,30));\n
+		// si zippa con l'iteratore che produce 0,1,2,3,4,... \n
+		var ritZip = this.factory.zipWithIndex(rit);\n
+		assertEquals(new Pair<>(10,0), ritZip.getElement());\n
+		ritZip = ritZip.next();\n
+		assertEquals(new Pair<>(20,1), ritZip.getElement());\n
+		ritZip = ritZip.next();\n
+		assertEquals(new Pair<>(30,2), ritZip.getElement());\n
+		ritZip = ritZip.next();\n
+		assertNull(ritZip);\n
+	}\n
+  \n
+	@Test\n
+	public void testAlternate() {\n
+		var rit = this.factory.fromList(List.of(10,20));\n
+		var rit2 = this.factory.fromList(List.of(1,2,3,4));\n
+		var ritAlt = this.factory.alternate(rit,rit2);\n
+		assertEquals(10, ritAlt.getElement().intValue());\n
+		ritAlt = ritAlt.next();\n
+		assertEquals(1, ritAlt.getElement().intValue());\n
+		ritAlt = ritAlt.next();\n
+		assertEquals(20, ritAlt.getElement().intValue());\n
+		ritAlt = ritAlt.next();\n
+		assertEquals(2, ritAlt.getElement().intValue());\n
+		ritAlt = ritAlt.next();\n
+		// è finito il primo iteratore, si procede col secondo\n
+		assertEquals(3, ritAlt.getElement().intValue());\n
+		ritAlt = ritAlt.next();\n
+		assertEquals(4, ritAlt.getElement().intValue());\n
+		ritAlt = ritAlt.next();\n
+		assertNull(ritAlt);\n
+	}\n"

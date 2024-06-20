@@ -12,7 +12,7 @@ public class comunicatorGPTtest {
 
     @BeforeEach
     void setUp() {
-        comunicator = new ChatGPTComunicator();
+        comunicator = new ChatGPTComunicator("");
     }
 
     @Test

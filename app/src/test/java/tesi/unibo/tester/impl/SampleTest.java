@@ -12,7 +12,7 @@ public class SampleTest {
 
     @Test
     void testFailure() {
-        assertTrue(false);
+        assertTrue(false, "It has to be false");
     }
 
     @Test

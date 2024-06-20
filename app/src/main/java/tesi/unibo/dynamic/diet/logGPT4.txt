@@ -1,0 +1,397 @@
+question = 
+Given the following test class:
+'
+package tesi.unibo.dynamic;
+import static tesi.unibo.dynamic.Diet.Nutrient.*;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class DynamicTest {
+private DietFactory factory;
+        @BeforeEach
+        public void initFactory() {
+                this.factory = new DietFactoryImpl();
+        }
+        private void fillProducts(Diet diet) {
+                diet.addFood("pasta", Map.of(CARBS,280,PROTEINS,70,FAT,50)); // 400 calories overall
+                diet.addFood("riso", Map.of(CARBS,250,PROTEINS,70,FAT,30));  // 350 calories overall
+                diet.addFood("pollo", Map.of(CARBS,10,PROTEINS,60,FAT,30));  // 100 calories overall
+                diet.addFood("insalata", Map.of(CARBS,10,PROTEINS,3,FAT,2)); // 15 calories overall
+                diet.addFood("broccoli", Map.of(CARBS,20,PROTEINS,10,FAT,5));// 35 calories overall
+                diet.addFood("grana", Map.of(CARBS,0,PROTEINS,200,FAT,200)); // 400 calories overall
+        }
+        @Test
+        public void testStandard() {
+                var diet = this.factory.standard();
+                this.fillProducts(diet);
+                assertTrue(diet.isValid(Map.of("pasta",200.0,"pollo",300.0,"grana",200.0)),
+                "calories is 1900"); // 800+300+800 calories
+                assertFalse(diet.isValid(Map.of("pasta",200.0,"pollo",300.0,"grana",50.0))); // 800+300+200 calories: too low!!
+                assertFalse(diet.isValid(Map.of("pasta",300.0,"pollo",300.0,"grana",200.0,"broccoli",300.0))); // 1200+300+800+105 calories: too much!!
+        }
+        @Test
+        public void testLowCarb() {
+                var diet = this.factory.lowCarb();
+                this.fillProducts(diet);
+                assertTrue(diet.isValid(Map.of("pollo",1000.0)),
+                "calories is 1000 and carbs is 100"); // ok calories, ok carbs
+                assertFalse(diet.isValid(Map.of("pasta",200.0,"pollo",300.0,"grana",200.0))); // 800+300+800 calories, too much!
+                assertFalse(diet.isValid(Map.of("pasta",400.0))); // ok calories, but too much carbs
+        }
+        @Test
+        public void testHighProtein() {
+                var diet = this.factory.highProtein();
+                this.fillProducts(diet);
+                assertTrue(diet.isValid(Map.of("pollo",2500.0)),
+                "calories is 2500, carbs is 250, protein is 1500"); // ok calories, ok proteins
+                assertFalse(diet.isValid(Map.of("pasta",200.0,"pollo",300.0,"grana",200.0))); // 800+300+800 calories, too few!
+                assertFalse(diet.isValid(Map.of("grana",500.0))); // ok calories, but too few proteins
+        }
+        @Test
+        public void testBalanced() {
+                var diet = this.factory.balanced();
+                this.fillProducts(diet);
+                assertTrue(diet.isValid(Map.of("pasta", 200.0, "pollo", 400.0, "grana", 100.0, "broccoli", 300.0))); // OK
+                assertFalse(diet.isValid(Map.of("pasta",200.0,"pollo",300.0,"grana",200.0)));
+                assertFalse(diet.isValid(Map.of("pollo",1000.0)));
+                assertFalse(diet.isValid(Map.of("pollo",2000.0)));
+        }
+
+}
+'
+Given the following support class:
+'
+package tesi.unibo.dynamic;
+
+import java.util.Map;
+
+/**
+ * Models a diet regime, essentially with a method 'isValid' to check
+ * if a selection of food is compliant with this diet
+ */
+public interface Diet {
+
+    /**
+     * The three standard types of nutrients
+     */
+    enum Nutrient {
+            CARBS, PROTEINS, FAT
+    }
+
+    /**
+     * Add information about a new type of food ("pasta", "pollo", and so on)
+     *
+     * @param name is the unique name of the food
+     * @param nutritionMap gives a map from a nutrient to how many calories it brings with 100 grams of food
+     * (see method Test.fillProducts for its usage
+     */
+    void addFood(String name, Map<Nutrient,Integer> nutritionMap);
+
+    /**
+     * Given a selection of food for a day diet, it states if this is valid in current diet.
+     * Note that if 100 grams of 'pasta' give 50 calories of FAT (according to nutritionMap above),
+     * then 200 grams of pasta added in dietMap brings 100 calories.
+     *
+     * @param dietMap, gives how many grams of each food are selected
+     * @return whether this selection of food is ok in this diet
+     */
+    boolean isValid(Map<String, Double> dietMap);
+
+}
+
+'
+Given the following class to implement:
+'
+package tesi.unibo.dynamic;
+
+public interface DietFactory {
+
+    /**
+     * @return a diet where a selection of food is ok if:
+     * - overall calories are within range [1500,2000]
+     * - does not care about carbs
+     * - does not care about protein
+     * - does not care about fat
+     */
+    Diet standard();
+
+    /**
+     * @return a diet where a selection of food is ok if:
+     * - overall calories are within range [1000,1500]
+     * - carbs give overall <=300 calories
+     * - does not care about protein
+     * - does not care about fat
+     */
+    Diet lowCarb();
+
+    /**
+     * @return a diet where a selection of food is ok if:
+     * - overall calories are within range [2000,2500]
+     * - carbs give overall <=300 calories
+     * - proteins give overall >=1300 calories
+     * - does not care about fat
+     */
+    Diet highProtein();
+
+    /**
+     * @return a diet where a selection of food is ok if:
+     * - overall calories are within range [1600,2000]
+     * - carbs give overall >=600 calories
+     * - proteins give overall >=600 calories
+     * - fat gives overall >=400 calories
+     * - fat and proteins together give overall <=1100 calories
+     */
+    Diet balanced();
+}
+
+'
+Given your previous implementation:
+'
+
+package tesi.unibo.dynamic;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class DietFactoryImpl implements DietFactory {
+
+private Map<String, Map<Diet.Nutrient, Integer>> foodData = new HashMap<>();
+
+@Override
+public Diet standard() {
+    return new Diet() {
+        @Override
+        public void addFood(String name, Map<Nutrient, Integer> nutritionMap) {
+            foodData.put(name, nutritionMap);
+        }
+
+        @Override
+        public boolean isValid(Map<String, Double> dietMap) {
+            double totalCalories = calculateCalories(dietMap);
+            return totalCalories >= 1500 && totalCalories <= 2000;
+        }
+    };
+}
+
+@Override
+public Diet lowCarb() {
+    return new Diet() {
+        @Override
+        public void addFood(String name, Map<Nutrient, Integer> nutritionMap) {
+            foodData.put(name, nutritionMap);
+        }
+
+        @Override
+        public boolean isValid(Map<String, Double> dietMap) {
+            double totalCalories = calculateCalories(dietMap);
+            double carbsCalories = calculateSpecificNutrientCalories(dietMap, Nutrient.CARBS);
+            return totalCalories >= 1000 && totalCalories <= 1500 && carbsCalories <= 300;
+        }
+    };
+}
+
+@Override
+public Diet highProtein() {
+    return new Diet() {
+        @Override
+        public void addFood(String name, Map<Nutrient, Integer> nutritionMap) {
+            foodData.put(name, nutritionMap);
+        }
+
+        @Override
+        public boolean isValid(Map<String, Double> dietMap) {
+            double totalCalories = calculateCalories(dietMap);
+            double carbsCalories = calculateSpecificNutrientCalories(dietMap, Nutrient.CARBS);
+            double proteinCalories = calculateSpecificNutrientCalories(dietMap, Nutrient.PROTEINS);
+            return totalCalories >= 2000 && totalCalories <= 2500 && carbsCalories <= 300 && proteinCalories >= 1300;
+        }
+    };
+}
+
+@Override
+public Diet balanced() {
+    return new Diet() {
+        @Override
+        public void addFood(String name, Map<Nutrient, Integer> nutritionMap) {
+            foodData.put(name, nutritionMap);
+        }
+
+        @Override
+        public boolean isValid(Map<String, Double> dietMap) {
+            double totalCalories = calculateCalories(dietMap);
+            double carbsCalories = calculateSpecificNutrientCalories(dietMap, Nutrient.CARBS);
+            double proteinCalories = calculateSpecificNutrientCalories(dietMap, Nutrient.PROTEINS);
+            double fatCalories = calculateSpecificNutrientCalories(dietMap, Nutrient.FAT);
+            double proteinFatCalories = proteinCalories + fatCalories;
+            return totalCalories >= 1600 && totalCalories <= 2000 &&
+                   carbsCalories >= 600 && proteinCalories >= 600 &&
+                   fatCalories >= 400 && proteinFatCalories <= 1100;
+        }
+    };
+}
+
+private double calculateCalories(Map<String, Double> dietMap) {
+    double totalCalories = 0;
+    for (Map.Entry<String, Double> entry : dietMap.entrySet()) {
+        String food = entry.getKey();
+        double weight = entry.getValue();
+        Map<Nutrient, Integer> nutritionalValues = foodData.get(food);
+        for (Map.Entry<Nutrient, Integer> nutrientEntry : nutritionalValues.entrySet()) {
+            totalCalories += nutrientEntry.getValue() * weight / 100;
+        }
+    }
+    return totalCalories;
+}
+
+private double calculateSpecificNutrientCalories(Map<String, Double> dietMap, Nutrient nutrient) {
+    double totalCalories = 0;
+    for (Map.Entry<String, Double> entry : dietMap.entrySet()) {
+        Map<Nutrient, Integer> nutritionalValues = foodData.get(entry.getKey());
+        if (nutritionalValues.containsKey(nutrient)) {
+            totalCalories += nutritionalValues.get(nutrient) * entry.getValue() / 100;
+        }
+    }
+    return totalCalories;
+}
+}
+
+'
+Given the following compilation errors:
+'
+C:\Users\meman\Desktop\tesi-2023-2024-unibo\app\src\main\java\tesi\unibo\dynamic\DietFactoryImpl.java:97: error: cannot find symbol
+private double calculateSpecificNutrientCalories(Map<String, Double> dietMap, Nutrient nutrient) {
+                                                                              ^
+symbol:   class Nutrient
+location: class DietFactoryImpl
+C:\Users\meman\Desktop\tesi-2023-2024-unibo\app\src\main\java\tesi\unibo\dynamic\DietFactoryImpl.java:89: error: cannot find symbol
+        Map<Nutrient, Integer> nutritionalValues = foodData.get(food);
+            ^
+symbol:   class Nutrient
+location: class DietFactoryImpl
+C:\Users\meman\Desktop\tesi-2023-2024-unibo\app\src\main\java\tesi\unibo\dynamic\DietFactoryImpl.java:90: error: cannot find symbol
+        for (Map.Entry<Nutrient, Integer> nutrientEntry : nutritionalValues.entrySet()) {
+                       ^
+symbol:   class Nutrient
+location: class DietFactoryImpl
+C:\Users\meman\Desktop\tesi-2023-2024-unibo\app\src\main\java\tesi\unibo\dynamic\DietFactoryImpl.java:100: error: cannot find symbol
+        Map<Nutrient, Integer> nutritionalValues = foodData.get(entry.getKey());
+            ^
+symbol:   class Nutrient
+location: class DietFactoryImpl
+4 errors
+
+'
+I want you to generate a Java class named DietFactoryImpl that passes the provided tests.  The package for the class to be created is "tesi.unibo.dynamic". I WANT ONLY THE CODE, NO COMMENTS. I want runnable code with the information I've given you. I don't want examples, I just want it to work and pass the tests.
+--------------------------------
+response = 
+```java
+package tesi.unibo.dynamic;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class DietFactoryImpl implements DietFactory {
+
+private Map<String, Map<Diet.Nutrient, Integer>> foodData = new HashMap<>();
+
+@Override
+public Diet standard() {
+    return new Diet() {
+        @Override
+        public void addFood(String name, Map<Diet.Nutrient, Integer> nutritionMap) {
+            foodData.put(name, nutritionMap);
+        }
+
+        @Override
+        public boolean isValid(Map<String, Double> dietMap) {
+            double totalCalories = calculateCalories(dietMap);
+            return totalCalories >= 1500 && totalCalories <= 2000;
+        }
+    };
+}
+
+@Override
+public Diet lowCarb() {
+    return new Diet() {
+        @Override
+        public void addFood(String name, Map<Diet.Nutrient, Integer> nutritionMap) {
+            foodData.put(name, nutritionMap);
+        }
+
+        @Override
+        public boolean isValid(Map<String, Double> dietMap) {
+            double totalCalories = calculateCalories(dietMap);
+            double carbsCalories = calculateSpecificNutrientCalories(dietMap, Diet.Nutrient.CARBS);
+            return totalCalories >= 1000 && totalCalories <= 1500 && carbsCalories <= 300;
+        }
+    };
+}
+
+@Override
+public Diet highProtein() {
+    return new Diet() {
+        @Override
+        public void addFood(String name, Map<Diet.Nutrient, Integer> nutritionMap) {
+            foodData.put(name, nutritionMap);
+        }
+
+        @Override
+        public boolean isValid(Map<String, Double> dietMap) {
+            double totalCalories = calculateCalories(dietMap);
+            double carbsCalories = calculateSpecificNutrientCalories(dietMap, Diet.Nutrient.CARBS);
+            double proteinCalories = calculateSpecificNutrientCalories(dietMap, Diet.Nutrient.PROTEINS);
+            return totalCalories >= 2000 && totalCalories <= 2500 && carbsCalories <= 300 && proteinCalories >= 1300;
+        }
+    };
+}
+
+@Override
+public Diet balanced() {
+    return new Diet() {
+        @Override
+        public void addFood(String name, Map<Diet.Nutrient, Integer> nutritionMap) {
+            foodData.put(name, nutritionMap);
+        }
+
+        @Override
+        public boolean isValid(Map<String, Double> dietMap) {
+            double totalCalories = calculateCalories(dietMap);
+            double carbsCalories = calculateSpecificNutrientCalories(dietMap, Diet.Nutrient.CARBS);
+            double proteinCalories = calculateSpecificNutrientCalories(dietMap, Diet.Nutrient.PROTEINS);
+            double fatCalories = calculateSpecificNutrientCalories(dietMap, Diet.Nutrient.FAT);
+            double proteinFatCalories = proteinCalories + fatCalories;
+            return totalCalories >= 1600 && totalCalories <= 2000 &&
+                    carbsCalories >= 600 && proteinCalories >= 600 &&
+                    fatCalories >= 400 && proteinFatCalories <= 1100;
+        }
+    };
+}
+
+private double calculateCalories(Map<String, Double> dietMap) {
+    double totalCalories = 0;
+    for (Map.Entry<String, Double> entry : dietMap.entrySet()) {
+        Map<Diet.Nutrient, Integer> nutrients = foodData.get(entry.getKey());
+        if (nutrients != null) {
+            for (Map.Entry<Diet.Nutrient, Integer> nutrient : nutrients.entrySet()) {
+                totalCalories += nutrient.getValue() * entry.getValue() / 100;
+            }
+        }
+    }
+    return totalCalories;
+}
+
+private double calculateSpecificNutrientCalories(Map<String, Double> dietMap, Diet.Nutrient nutrientType) {
+    double nutrientCalories = 0;
+    for (Map.Entry<String, Double> entry : dietMap.entrySet()) {
+        Map<Diet.Nutrient, Integer> nutrients = foodData.get(entry.getKey());
+        if (nutrients != null && nutrients.containsKey(nutrientType)) {
+            nutrientCalories += nutrients.get(nutrientType) * entry.getValue() / 100;
+        }
+    }
+    return nutrientCalories;
+}
+}
+
+come vengono aggiustati i compilation error.

@@ -8,7 +8,10 @@
 
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
+    java
     application
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("org.danilopianini.gradle-java-qa") version "0.43.0"
 }
 
 repositories {
@@ -17,6 +20,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly("com.github.spotbugs:spotbugs-annotations:4.7.3")
     // Dipendenze di implementazione (main)
     implementation("com.google.guava:guava:31.1-jre")
     implementation("org.json:json:20220924")

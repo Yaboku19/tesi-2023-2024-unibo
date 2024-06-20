@@ -1,0 +1,71 @@
+class: SubsequenceCombinerFactoryImpl
+support: SubsequenceCombiner
+interface : SubsequenceCombinerFactory
+imports: "
+  import static org.junit.jupiter.api.Assertions.*;\n
+  import java.util.*;\n
+	import org.junit.jupiter.api.BeforeEach;\n
+	import org.junit.jupiter.api.Test;"
+code: "
+  private SubsequenceCombinerFactory factory;\n
+  \n
+	@BeforeEach\n
+	public void init() {\n
+		this.factory = new SubsequenceCombinerFactoryImpl();\n
+	}\n
+  \n
+	@Test\n
+	public void testTripletsToSum() {\n
+		SubsequenceCombiner<Integer,Integer> sc = this.factory.tripletsToSum();\n
+		// Si isolano triple, e se ne fornisce la somma: una parte finale di 1 o 2 elementi è comunque sommata\n
+		assertEquals(List.of(30,300,3000,30),\n
+			sc.combine(List.of(10, 10, 10, 100, 100, 100, 1000, 1000, 1000, 10, 20))\n
+		);\n
+		assertEquals(List.of(18,300),\n
+			sc.combine(List.of(5, 6, 7, 100, 100, 100))\n
+		);\n
+	}\n
+\n
+	@Test\n
+	public void testTripletsToList() {\n
+		SubsequenceCombiner<Integer,List<Integer>> sc = this.factory.tripletsToList();\n
+		// Come nel caso precedente, ma si formino liste\n
+		assertEquals(List.of(List.of(10,10,10), List.of(100,100,100), List.of(1000,1000,1000), List.of(10,20)),\n
+			sc.combine(List.of(10, 10, 10, 100, 100, 100, 1000, 1000, 1000, 10, 20))\n
+		);\n
+		assertEquals(List.of(List.of(10,10,10), List.of(100,100,100)),\n
+			sc.combine(List.of(10, 10, 10, 100, 100, 100))\n
+		);\n
+	}\n
+  \n
+	@Test
+	public void testCountUntilZero() {\n
+		SubsequenceCombiner<Integer,Integer> sc = this.factory.countUntilZero();\n
+		// Trovato uno zero (o fine lista), si produca il numero di elementi fin qui\n
+		assertEquals(List.of(3,2,4,2),\n
+			sc.combine(List.of(1,1,1,0,2,2,0,3,3,3,3,0,5,6))\n
+		);\n
+		assertEquals(List.of(3,2),\n
+			sc.combine(List.of(10,10,10,0,2,3,0))\n
+		);\n
+	}\n
+  \n
+	@Test\n
+	public void testSingleReplacer() {\n
+		// la combine in questo caso è come la map degli stream\n
+		SubsequenceCombiner<String,String> sc = this.factory.singleReplacer(s -> s + s);\n
+		assertEquals(List.of(\"aa\", \"bb\", \"cc\"), \n
+			sc.combine(List.of(\"a\", \"b\", \"c\")));\n
+		SubsequenceCombiner<String,Integer> sc2 = this.factory.singleReplacer(s -> s.length());\n
+		assertEquals(List.of(1, 3, 2), \n
+			sc2.combine(List.of(\"a\", \"bbb\", \"cc\")));\n
+	}\n
+  \n
+	@Test\n
+	public void testCumulativeToList() {\n
+		SubsequenceCombiner<Integer,List<Integer>> sc = this.factory.cumulateToList(100);\n
+		// Soglia 100: non appena la somma degli elementi trovati diventa >=100 (o c'è fine lista)\n
+		// la sottosequenza viene data in uscita\n
+		assertEquals(List.of(List.of(10,50,70), List.of(80,20), List.of(30,30,39,30), List.of(40)), \n
+			sc.combine(List.of(10,50,70,80,20,30,30,39,30,40)));\n
+	}\n"

@@ -22,7 +22,8 @@ public class TesterTest {
 
         // Verificare che i nomi dei test e i messaggi di errore siano corretti
         assertTrue(result.containsKey("testFailure()"), "Result should contain testFailure()");
-        assertEquals("expected: <true> but was: <false>", result.get("testFailure()"));
+        assertTrue(result.get("testFailure()").contains("expected: <true> but was: <false>"));
+        assertTrue(result.get("testFailure()").contains("It has to be false"));
 
         assertTrue(result.containsKey("testException()"), "Result should contain testException()");
         assertEquals("Test exception", result.get("testException()"));
