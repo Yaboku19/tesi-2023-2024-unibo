@@ -1,0 +1,32 @@
+class: Counter
+imports: "
+  import static org.junit.jupiter.api.Assertions.assertEquals;\n
+  import org.junit.jupiter.api.BeforeEach;\n
+  import org.junit.jupiter.api.Test;"
+code: "\n
+  private Counter counter;\n
+  \n
+  @BeforeEach\n
+  public void setUp() {\n
+    counter = new Counter();\n
+  }\n
+  \n
+  @Test\n
+  public void testIncrementa() {\n
+    counter.increment();\n
+    assertEquals(1, counter.getValue(), \"it should be 1\");\n
+  }\n
+  \n
+  @Test\n
+  public void testDecrementa() {\n
+    contatore.decrement();\n
+    assertEquals(-1, contatore.getValue(), \"it should be -1\");\n
+  }\n
+  \n
+  @Test\n
+  public void testIncrementaDecrementa() {\n
+    contatore.increment();\n
+    contatore.increment();\n
+    contatore.decrement();\n
+    assertEquals(1, contatore.getValue());\n
+  }"

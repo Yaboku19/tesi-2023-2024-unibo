@@ -1,5 +1,6 @@
-urlResources: "test/yaml/recursiveIterator.yml"
+urlResources: "test/yaml/dietNoInterface.yml"
 packageClass: "tesi.unibo.dynamic"
 packageTest: "tesi.unibo.dynamic"
 testName: "DynamicTest"
 keyGPT: ""
+model: "gpt-4-turbo"

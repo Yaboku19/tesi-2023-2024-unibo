@@ -30,9 +30,6 @@ import java.util.Queue;
 
 public class BasicController implements Controller {
     private static final String URL_SETTINGS = "config/config.yml";
-    private final String urlResource;
-    private final String packageClass;
-    private final String packageTest;
     private final String testName;
     private final Comunicator comunicator;
     private final Generator generator;
@@ -48,11 +45,11 @@ public class BasicController implements Controller {
     
     public BasicController () {
         Map<String, String> file = settings();
-        urlResource = file.get("urlResources");
-        packageClass = file.get("packageClass");
-        packageTest = file.get("packageTest");
+        final String urlResource = file.get("urlResources");
+        final String packageClass = file.get("packageClass");
+        final String packageTest = file.get("packageTest");
         testName = file.get("testName");
-        this.comunicator = new ChatGPTComunicator(file.get("keyGPT"));
+        this.comunicator = new ChatGPTComunicator(file.get("keyGPT"), file.get("model"));
         this.generator = new GeneratorImpl(packageTest, packageClass);
         this.tester = new TesterJava();
         this.reader = new ReaderFromYml(packageTest, testName);

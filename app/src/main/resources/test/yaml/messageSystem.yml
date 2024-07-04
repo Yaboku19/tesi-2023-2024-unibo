@@ -1,0 +1,27 @@
+class: MessageSystem
+imports: "
+  import static org.junit.jupiter.api.Assertions.*;\n
+	import org.junit.jupiter.api.BeforeEach;\n
+	import org.junit.jupiter.api.Test;\n
+  import java.util.List;"
+code: "
+  private MessageSystem system;\n
+  \n
+  @BeforeEach\n
+  public void setUp() {\n
+      system = new MessageSystem();\n
+  }\n
+  \n
+  @Test\n
+  public void testSendAndGetMessage() {\n
+    system.sendMessage(\"alice\", \"bob\", \"Ciao Bob!\");\n
+    List<String> bobMessages = system.getMessages(\"bob\");\n
+    assertEquals(1, bobMessages.size());\n
+    assertEquals(\"Da alice: Ciao Bob!\", bobMessages.get(0));\n
+  }\n
+  \n
+  @Test\n
+  public void testNoMessage() {\n
+    List<String> messages = system.getMessages(\"charlie\");\n
+    assertTrue(messages.isEmpty());\n
+  }\n"

@@ -51,13 +51,13 @@ public abstract class Reader {
         this.supportClassName = supportClassName;
     }
 
-    protected void setInterfaceClassName(final String implementClassName) {
-        this.interfaceClassName = implementClassName;
+    protected void setInterfaceClassName(final String interfaceClassName) {
+        this.interfaceClassName = interfaceClassName;
     }
 
     public String getInterfaceClass() {
         String content = "";
-        if (supportClassName != "") {
+        if (interfaceClassName != "") {
             try {
                 final File testFile = new File(pathToSupportClass + interfaceClassName + ".java");
                 content = new String(Files.readAllBytes(Paths.get(testFile.toURI())));

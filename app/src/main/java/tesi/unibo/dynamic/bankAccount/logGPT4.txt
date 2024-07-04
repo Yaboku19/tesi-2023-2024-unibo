@@ -1,0 +1,483 @@
+response = 
+```java
+package tesi.unibo.dynamic;
+
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+
+public class BankAccountFactoryImpl implements BankAccountFactory {
+
+    @Override
+    public BankAccount createBasic() {
+        return new BasicBankAccount();
+    }
+
+    @Override
+    public BankAccount createWithFee(UnaryOperator<Integer> feeFunction) {
+        return new FeeBankAccount(feeFunction);
+    }
+
+    @Override
+    public BankAccount createWithCredit(Predicate<Integer> allowedCredit, UnaryOperator<Integer> rateFunction) {
+        return new CreditBankAccount(allowedCredit, rateFunction);
+    }
+
+    @Override
+    public BankAccount createWithBlock(BiPredicate<Integer, Integer> blockingPolicy) {
+        return new BlockBankAccount(blockingPolicy);
+    }
+
+    @Override
+    public BankAccount createWithFeeAndCredit(UnaryOperator<Integer> feeFunction, Predicate<Integer> allowedCredit, UnaryOperator<Integer> rateFunction) {
+        return new FeeAndCreditBankAccount(feeFunction, allowedCredit, rateFunction);
+    }
+}
+
+class BasicBankAccount implements BankAccount {
+    protected int balance = 0;
+
+    @Override
+    public int getBalance() {
+        return balance;
+    }
+
+    @Override
+    public void deposit(int amount) {
+        balance += amount;
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        if (amount > balance) {
+            return false;
+        }
+        balance -= amount;
+        return true;
+    }
+}
+
+class FeeBankAccount extends BasicBankAccount {
+    protected UnaryOperator<Integer> feeFunction;
+
+    public FeeBankAccount(UnaryOperator<Integer> feeFunction) {
+        this.feeFunction = feeFunction;
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        int fee = feeFunction.apply(amount);
+        if (amount + fee > getBalance()) {
+            return false;
+        }
+        balance -= amount + fee;
+        return true;
+    }
+}
+
+class CreditBankAccount extends BasicBankAccount {
+    private Predicate<Integer> allowedCredit;
+    private UnaryOperator<Integer> rateFunction;
+
+    public CreditBankAccount(Predicate<Integer> allowedCredit, UnaryOperator<Integer> rateTimeFunction) {
+        this.allowedCredit = allowedCredit;
+        this.rateFunction = rateTimeFunction;
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        int newBalance = getBalance() - amount;
+        if (allowedCredit.test(newBalance)) {
+            balance = newBalance;
+            int fee = rateFunction.apply(-newBalance); // newBalance is negative if in overdraft
+            balance -= fee;
+            return true;
+        }
+        return false;
+    }
+}
+
+class BlockBankAccount extends BasicBankAccount {
+    private BiPredicate<Integer, Integer> blockingPolicy;
+    private boolean blocked = false;
+
+    public BlockBankAccount(BiPredicate<Integer, Integer> blockingPolicy) {
+        this.blockingPolicy = blockingPolicy;
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        if (blocked || blockingPolicy.test(amount, getBalance())) {
+            blocked = true;
+            return false;
+        }
+        balance -= amount;
+        return true;
+    }
+}
+
+class FeeAndCreditBankAccount extends FeeBankAccount {
+    private Predicate<Integer> allowedCredit;
+    private UnaryOperator<Integer> rateFunction;
+
+    public FeeAndCreditBankAccount(UnaryOperator<Integer> feeFunction, Predicate<Integer> allowedCredit, UnaryOperator<Integer> rateFunction) {
+        super(feeFunction);
+        this.allowedCredit = allowedCredit;
+        this.rateFunction = rateFunction;
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        int fee = feeFunction.apply(amount);
+        int actualWithdrawal = amount + fee;
+        int newBalance = getBalance() - actualWithdrawal;
+        if (allowedCredit.test(newBalance)) {
+            balance -= actualWithdrawal;
+            int tax = rateFunction.apply(-newBalance);
+            balance -= tax;
+            return true;
+        }
+        return false;
+    }
+}
+```
+--------------------------------
+{testWithFeeAndCredit()=expected: <69> but was: <59>, testWithCredit()=expected: <70> but was: <60>}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+question = 
+Given the following test class:
+'
+package tesi.unibo.dynamic;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class DynamicTest {
+private BankAccountFactory factory;
+        @BeforeEach
+        public void init() {
+                this.factory = new BankAccountFactoryImpl();
+        }
+        @Test
+        public void testBasic() {
+                var account = this.factory.createBasic();
+                // quello che prelievo, se disponible, viene rimosso
+                assertEquals(0, account.getBalance());
+                account.deposit(100);
+                account.deposit(30);
+                assertEquals(130, account.getBalance());
+                assertTrue(account.withdraw(40));
+                assertEquals(90, account.getBalance());
+                assertFalse(account.withdraw(200));
+                assertEquals(90, account.getBalance());
+        }
+        @Test
+        public void testWithFee() {
+                var account = this.factory.createWithFee(amount -> amount > 35 ? 1 : 0);
+                // quello che prelievo, se disponible, viene rimosso, togliendo un euro in più se prelievo più di 35
+                assertEquals(0, account.getBalance());
+                account.deposit(100);
+                account.deposit(30);
+                assertEquals(130, account.getBalance());
+                assertTrue(account.withdraw(40));
+                assertEquals(89, account.getBalance()); // the fee is applied
+                assertTrue(account.withdraw(20));
+                assertEquals(69, account.getBalance()); // the fee is NOT applied
+                assertFalse(account.withdraw(80));
+                assertEquals(69, account.getBalance());
+        }
+        @Test
+        public void testWithCredit() {
+                var account = this.factory.createWithCredit(credit -> credit < 100, credit -> 10);
+                // il conto può andare in "rosso" fino a 99 euro, ma ogni operazione che mi manda in rosso viene tassata di 10 euro
+                assertEquals(0, account.getBalance());
+                account.deposit(100);
+                account.deposit(30);
+                assertEquals(130, account.getBalance());
+                assertTrue(account.withdraw(60));
+                assertEquals(70, account.getBalance());
+                assertFalse(account.withdraw(170)); // 100 of credit is too much!!
+                assertEquals(70, account.getBalance());
+                assertTrue(account.withdraw(150)); // 80 of credit is ok, but it becomes 80+10!
+                assertEquals(-90, account.getBalance());
+                assertFalse(account.withdraw(20)); // 110 of credit is too much!!
+                assertEquals(-90, account.getBalance());
+                assertTrue(account.withdraw(9)); // 99 of credit is ok, but it becomes 99+10
+                assertEquals(-109, account.getBalance());
+        }
+        @Test
+        public void testWithBlock() {
+                var account = this.factory.createWithBlock((amount,balance) -> amount > balance);
+                // se si tenta di prelevare più di quello che si ha il conto si blocca e non si può più prelevare nulla
+                assertEquals(0, account.getBalance());
+                account.deposit(100);
+                account.deposit(30);
+                assertEquals(130, account.getBalance());
+                assertTrue(account.withdraw(60));
+                assertEquals(70, account.getBalance());
+                assertTrue(account.withdraw(30));
+                assertEquals(40, account.getBalance());
+                assertFalse(account.withdraw(50)); // now it is blocked, from now on
+                assertEquals(40, account.getBalance());
+                assertFalse(account.withdraw(10));
+                assertEquals(40, account.getBalance());
+                assertFalse(account.withdraw(2));
+                assertEquals(40, account.getBalance());
+        }
+        @Test
+        public void testWithFeeAndCredit() {
+                var account = this.factory.createWithFeeAndCredit(amount -> 1, credit -> credit < 100, credit -> 10);
+                // tassa fissa 1 euro a prelievo, credito fino a max 100 euro esclusi, e 10 euro di tassa quando si va in rosso
+                // ossia una combinazione di Fee e Credit
+                assertEquals(0, account.getBalance());
+                account.deposit(100);
+                account.deposit(30);
+                assertEquals(130, account.getBalance());
+                assertTrue(account.withdraw(60));
+                assertEquals(69, account.getBalance());
+                assertFalse(account.withdraw(170)); // 100 of credit is too much!!
+                assertEquals(69, account.getBalance());
+                assertTrue(account.withdraw(150)); // 81 of credit is ok, but it becomes 81+11!
+                assertEquals(-92, account.getBalance());
+                assertFalse(account.withdraw(20)); // 110 of credit is too much!!
+                assertEquals(-92, account.getBalance());
+                assertTrue(account.withdraw(5)); // 92+5+1 of credit is ok, but it becomes 108
+                assertEquals(-108, account.getBalance());
+        }
+
+}
+'
+Given the following support class:
+'
+package tesi.unibo.dynamic;
+
+/**
+ * An interface modelling a BankAccount, initially with balance 0, and where one can
+ * deposit money or withdraw money (withdraw = prelevare)
+ */
+public interface BankAccount {
+
+    /**
+     * @return the current balance, initialy 0, that is, how much money this account contains
+     */
+    int getBalance();
+
+    /**
+     * @param amount
+     * puts an additional amount of money in the account
+     */
+    void deposit(int amount);
+
+    /**
+    * @param amount
+    * removes an amount of money from the account
+    * it depends on the implementation to decide wheter there will be taxes (fees) and
+    * what happens if you take more money than you actually have
+    * @return whether withdrawal succeeded: if it did not succeed the balance remains unchanged
+    */
+    boolean withdraw(int amount);
+
+ }
+
+'
+Given the following class to implement:
+'
+package tesi.unibo.dynamic;
+
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+
+/**
+ * An interface modelling a factory of BankAccount, changing in how they handle withdrawal of money
+ */
+public interface BankAccountFactory {
+
+    /**
+     * @return the simplest bank account, where you can withdraw money that you have, and without any additional tax/fee
+     */
+    BankAccount createBasic();
+
+    /**
+     * @param feeFunction, e.g. 'amount -> amount > 50 ? 1 : 0' means that withdrawals greater
+     * than 50 incur in 1 of additional tax, 0 otherwise
+     * @return a bank account always applying a fee as computed by feeFunction
+     */
+    BankAccount createWithFee(UnaryOperator<Integer> feeFunction);
+
+    /**
+     * @param allowedCredit, e.g. 'credit -> credit < 50' means we allow a maximum credit of 50 euros, i.e., balance = -50
+     * @param rateFunction, e.g. 'credit -> 10' means that independently of the credit you ask, an additional tax=10 is applied
+     * @return a bank account allowing you some credit, but with a tax
+     */
+    BankAccount createWithCredit(Predicate<Integer> allowedCredit, UnaryOperator<Integer> rateFunction);
+
+    /**
+     * @param blockingPolicy, e.g. '(amount,balance) -> amount > balance' means that if we try to withdraw an amount
+     * that is greater than current balance, the account is blocked an no more withdrawals will be possible
+     * @return a bank account where an unproper withdraw can block it forever
+     */
+    BankAccount createWithBlock(BiPredicate<Integer,Integer> blockingPolicy);
+
+    /**
+     * @param feeFunction, as in createWithFee
+     * @param allowedCredit, as in creatWithCredit
+     * @param rateFunction, as in creatWithCredit
+     * @return a bank account applying both a fee AND allowing you some credit, but with a tax
+     */
+    BankAccount createWithFeeAndCredit(UnaryOperator<Integer> feeFunction, Predicate<Integer> allowedCredit, UnaryOperator<Integer> rateFunction);
+}
+
+'
+Given your previous implementation:
+'
+
+package tesi.unibo.dynamic;
+
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+
+public class BankAccountFactoryImpl implements BankAccountFactory {
+
+    @Override
+    public BankAccount createBasic() {
+        return new BasicBankAccount();
+    }
+
+    @Override
+    public BankAccount createWithFee(UnaryOperator<Integer> feeFunction) {
+        return new FeeBankAccount(feeFunction);
+    }
+
+    @Override
+    public BankAccount createWithCredit(Predicate<Integer> allowedCredit, UnaryOperator<Integer> rateFunction) {
+        return new CreditBankAccount(allowedCredit, rateFunction);
+    }
+
+    @Override
+    public BankAccount createWithBlock(BiPredicate<Integer, Integer> blockingPolicy) {
+        return new BlockBankAccount(blockingPolicy);
+    }
+
+    @Override
+    public BankAccount createWithFeeAndCredit(UnaryOperator<Integer> feeFunction, Predicate<Integer> allowedCredit, UnaryOperator<Integer> rateFunction) {
+        return new FeeAndCreditBankAccount(feeFunction, allowedCredit, rateFunction);
+    }
+}
+
+class BasicBankAccount implements BankAccount {
+    protected int balance = 0;
+
+    @Override
+    public int getBalance() {
+        return balance;
+    }
+
+    @Override
+    public void deposit(int amount) {
+        balance += amount;
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        if (amount > balance) {
+            return false;
+        }
+        balance -= amount;
+        return true;
+    }
+}
+
+class FeeBankAccount extends BasicBankAccount {
+    protected UnaryOperator<Integer> feeFunction;
+
+    public FeeBankAccount(UnaryOperator<Integer> feeFunction) {
+        this.feeFunction = feeFunction;
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        int fee = feeFunction.apply(amount);
+        if (amount + fee > getBalance()) {
+            return false;
+        }
+        balance -= amount + fee;
+        return true;
+    }
+}
+
+class CreditBankAccount extends BasicBankAccount {
+    private Predicate<Integer> allowedCredit;
+    private UnaryOperator<Integer> rateFunction;
+
+    public CreditBankAccount(Predicate<Integer> allowedCredit, UnaryOperator<Integer> rateTimeFunction) {
+        this.allowedCredit = allowedCredit;
+        this.rateFunction = rateTimeFunction;
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        int newBalance = getBalance() - amount;
+        if (allowedCredit.test(newBalance)) {
+            balance = newBalance;
+            int fee = rateFunction.apply(-newBalance); // newBalance is negative if in overdraft
+            balance -= fee;
+            return true;
+        }
+        return false;
+    }
+}
+
+class BlockBankAccount extends BasicBankAccount {
+    private BiPredicate<Integer, Integer> blockingPolicy;
+    private boolean blocked = false;
+
+    public BlockBankAccount(BiPredicate<Integer, Integer> blockingPolicy) {
+        this.blockingPolicy = blockingPolicy;
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        if (blocked || blockingPolicy.test(amount, getBalance())) {
+            blocked = true;
+            return false;
+        }
+        balance -= amount;
+        return true;
+    }
+}
+
+class FeeAndCreditBankAccount extends FeeBankAccount {
+    private Predicate<Integer> allowedCredit;
+    private UnaryOperator<Integer> rateFunction;
+
+    public FeeAndCreditBankAccount(UnaryOperator<Integer> feeFunction, Predicate<Integer> allowedCredit, UnaryOperator<Integer> rateFunction) {
+        super(feeFunction);
+        this.allowedCredit = allowedCredit;
+        this.rateFunction = rateFunction;
+    }
+
+    @Override
+    public boolean withdraw(int amount) {
+        int fee = feeFunction.apply(amount);
+        int actualWithdrawal = amount + fee;
+        int newBalance = getBalance() - actualWithdrawal;
+        if (allowedCredit.test(newBalance)) {
+            balance -= actualWithdrawal;
+            int tax = rateFunction.apply(-newBalance);
+            balance -= tax;
+            return true;
+        }
+        return false;
+    }
+}
+
+'
+Given the following tests failed by your previous implementation:
+'
+        - testWithFeeAndCredit(): expected: <69> but was: <59>
+        - testWithCredit(): expected: <70> but was: <60>
+
+'
+I want you to generate a Java class named BankAccountFactoryImpl that passes the provided tests.  The package for the class to be created is "tesi.unibo.dynamic". I WANT ONLY THE CODE, NO COMMENTS. I want runnable code with the information I've given you. I don't want examples, I just want it to work and pass the tests.

@@ -1,0 +1,29 @@
+class: Biblioteca
+imports: "
+  import static org.junit.jupiter.api.Assertions.*;\n
+	import org.junit.jupiter.api.BeforeEach;\n
+	import org.junit.jupiter.api.Test;"
+code: "
+  @Test\n
+  public void testPrestaLibro() {\n
+      Biblioteca biblio = new Biblioteca();\n
+      biblio.aggiungiLibro(\"Il Signore degli Anelli\");\n
+      biblio.aggiungiLibro(\"Il Signore degli Anelli\");\n
+      assertTrue(biblio.prestaLibro(\"Il Signore degli Anelli\"));\n
+      assertTrue(biblio.prestaLibro(\"Il Signore degli Anelli\"));\n
+      assertFalse(biblio.prestaLibro(\"Il Signore degli Anelli\"));\n
+      biblio.aggiungiLibro(\"Il Signore degli Anelli\");\n
+      assertTrue(biblio.prestaLibro(\"Il Signore degli Anelli\"));\n
+      assertFalse(biblio.prestaLibro(\"Il Signore degli Anelli\"));\n
+  }\n
+  \n
+  @Test\n
+  public void testRestituzioneLibro() {\n
+      Biblioteca biblio = new Biblioteca();\n
+      biblio.aggiungiLibro(\"Il Signore degli Anelli\");\n
+      biblio.prestaLibro(\"Il Signore degli Anelli\");\n
+      assertFalse(biblio.prestaLibro(\"Il Signore degli Anelli\"));\n
+      assertTrue(biblio.restituisceLibro(\"Il Signore degli Anelli\"));\n
+      assertTrue(biblio.prestaLibro(\"Il Signore degli Anelli\"));\n
+      assertTrue(biblio.restituisceLibro(\"Il Signore degli Anelli\"));\n
+  }\n"

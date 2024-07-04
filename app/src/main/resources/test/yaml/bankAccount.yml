@@ -1,0 +1,105 @@
+class: BankAccountFactoryImpl
+support: BankAccount
+interface : BankAccountFactory
+imports: "
+  import static org.junit.jupiter.api.Assertions.*;\n
+	import org.junit.jupiter.api.BeforeEach;\n
+	import org.junit.jupiter.api.Test;"
+code: "
+  private BankAccountFactory factory;\n
+  \n
+	@BeforeEach\n
+	public void init() {\n
+		this.factory = new BankAccountFactoryImpl();\n
+	}\n
+  \n
+	@Test\n
+	public void testBasic() {\n
+		var account = this.factory.createBasic();\n
+		// quello che prelievo, se disponible, viene rimosso\n
+		assertEquals(0, account.getBalance());\n
+		account.deposit(100);\n
+		account.deposit(30);\n
+		assertEquals(130, account.getBalance());\n
+		assertTrue(account.withdraw(40));\n
+		assertEquals(90, account.getBalance());\n
+		assertFalse(account.withdraw(200));\n
+		assertEquals(90, account.getBalance());\n
+	}\n
+  \n
+	@Test\n
+	public void testWithFee() {\n
+		var account = this.factory.createWithFee(amount -> amount > 35 ? 1 : 0);\n
+		// quello che prelievo, se disponible, viene rimosso, togliendo un euro in più se prelievo più di 35\n
+		assertEquals(0, account.getBalance());\n
+		account.deposit(100);\n
+		account.deposit(30);\n
+		assertEquals(130, account.getBalance());\n
+		assertTrue(account.withdraw(40));\n
+		assertEquals(89, account.getBalance()); // the fee is applied\n
+		assertTrue(account.withdraw(20));\n
+		assertEquals(69, account.getBalance()); // the fee is NOT applied\n
+		assertFalse(account.withdraw(80));\n
+		assertEquals(69, account.getBalance());\n
+	}\n
+  \n
+	@Test\n
+	public void testWithCredit() {\n
+		var account = this.factory.createWithCredit(credit -> credit < 100, credit -> 10);\n
+		// il conto può andare in \"rosso\" fino a 99 euro, ma ogni operazione che mi manda in rosso viene tassata di 10 euro\n
+		assertEquals(0, account.getBalance());\n
+		account.deposit(100);\n
+		account.deposit(30);\n
+		assertEquals(130, account.getBalance());\n
+		assertTrue(account.withdraw(60));\n
+		assertEquals(70, account.getBalance());\n 
+		assertFalse(account.withdraw(170)); // 100 of credit is too much!!\n
+		assertEquals(70, account.getBalance()); \n
+		assertTrue(account.withdraw(150)); // 80 of credit is ok, but it becomes 80+10!\n
+		assertEquals(-90, account.getBalance()); \n
+		assertFalse(account.withdraw(20)); // 110 of credit is too much!!\n
+		assertEquals(-90, account.getBalance()); \n
+		assertTrue(account.withdraw(9)); // 99 of credit is ok, but it becomes 99+10\n
+		assertEquals(-109, account.getBalance()); \n
+	}\n
+  \n
+	@Test\n
+	public void testWithBlock() {\n
+		var account = this.factory.createWithBlock((amount,balance) -> amount > balance);\n
+		// se si tenta di prelevare più di quello che si ha il conto si blocca e non si può più prelevare nulla\n
+		assertEquals(0, account.getBalance());\n
+		account.deposit(100);\n
+		account.deposit(30);\n
+		assertEquals(130, account.getBalance());\n
+		assertTrue(account.withdraw(60));\n
+		assertEquals(70, account.getBalance()); \n
+		assertTrue(account.withdraw(30));\n
+		assertEquals(40, account.getBalance()); \n
+		assertFalse(account.withdraw(50)); // now it is blocked, from now on\n
+		assertEquals(40, account.getBalance()); \n
+		assertFalse(account.withdraw(10));\n
+		assertEquals(40, account.getBalance());\n 
+		assertFalse(account.withdraw(2));\n
+		assertEquals(40, account.getBalance());\n  
+	}\n
+  \n
+	@Test\n
+	public void testWithFeeAndCredit() {\n
+		var account = this.factory.createWithFeeAndCredit(amount -> 1, credit -> credit < 100, credit -> 10);\n
+		// tassa fissa 1 euro a prelievo, credito fino a max 100 euro esclusi, e 10 euro di tassa quando si va in rosso\n
+		// ossia una combinazione di Fee e Credit\n
+		assertEquals(0, account.getBalance());\n
+		account.deposit(100);\n
+		account.deposit(30);\n
+		assertEquals(130, account.getBalance());\n
+		assertTrue(account.withdraw(60));\n
+		assertEquals(69, account.getBalance()); \n
+		assertFalse(account.withdraw(170)); // 100 of credit is too much!!\n
+		assertEquals(69, account.getBalance()); \n
+		assertTrue(account.withdraw(150)); // 81 of credit is ok, but it becomes 81+11!\n
+		assertEquals(-92, account.getBalance()); \n
+		assertFalse(account.withdraw(20)); // 110 of credit is too much!!\n
+		assertEquals(-92, account.getBalance()); \n
+		assertTrue(account.withdraw(5)); // 92+5+1 of credit is ok, but it becomes 108\n
+		assertEquals(-108, account.getBalance()); \n
+	}\n"

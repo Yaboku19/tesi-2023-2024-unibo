@@ -12,9 +12,11 @@ import org.json.JSONObject;
 public class ChatGPTComunicator implements Comunicator {
     private static final String URL = "https://api.openai.com/v1/chat/completions";
     private final String key;
+    private final String model;
 
-    public ChatGPTComunicator(final String key) {
+    public ChatGPTComunicator(final String key, final String model) {
         this.key = key;
+        this.model = model;
     }
 
     @Override
@@ -26,7 +28,7 @@ public class ChatGPTComunicator implements Comunicator {
             con.setRequestProperty("Authorization", "Bearer " + key);
 
             final JSONObject data = new JSONObject();
-            data.put("model", "gpt-4-turbo");
+            data.put("model", model);
             data.put("messages", getMessages(question));
             data.put("max_tokens", 2000);
             data.put("temperature", 1.0);

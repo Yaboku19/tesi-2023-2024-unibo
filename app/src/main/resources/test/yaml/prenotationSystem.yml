@@ -1,0 +1,63 @@
+class: PrenotationSystem
+support: Event
+imports: "
+  import static org.junit.jupiter.api.Assertions.*;\n
+	import org.junit.jupiter.api.BeforeEach;\n
+	import org.junit.jupiter.api.Test;\n
+  import java.util.*;"
+code: "
+  private PrenotationSystem system;\n
+  \n
+	@BeforeEach\n
+	public void setUp() {\n
+		system = new PrenotationSystem();\n
+		Event concerto = new Event(\"Concerto\", new Date());\n
+		system.addEvent(\"123\", concerto);\n
+		system.addEvent(\"124\", new Event(\"Opera\", new Date()));\n
+	}\n
+  \n
+	@Test\n
+	public void testPrenotazioneMultiplaStessoUtenteStessoEvento() {\n
+		assertTrue(system.reserveTicket(\"utente1\",  \"123\"));\n
+		assertFalse(system.reserveTicket(\"utente1\", \"123\")); // Dovrebbe fallire dato che l'evento non consente doppie prenotazioni per lo stesso utente\n
+	}\n
+  \n
+	@Test\n
+	public void testPrenotazioneConflittoDiDate() {\n
+		system.reserveTicket(\"utente2\", \"123\");\n
+		assertFalse(system.reserveTicket(\"utente2\", \"124\"), \"an user cannot reserve more than one ticket in the same date, even for different event\"); // Presuppone che gli eventi abbiano date che si sovrappongono e l'utente non possa partecipare a entrambi\n
+	}\n
+  \n
+	@Test\n
+	public void testCancellazioneEventoConPrenotazioni() {\n
+		system.reserveTicket(\"utente3\", \"123\");\n
+		assertTrue(system.deleteEvent(\"123\")); // Verifica che l'evento venga cancellato correttamente\n
+		assertNull(system.getUserTickets(\"utente3\"),\"getUserTickets should return null when there are no tickets, not an exception\"); // Verifica che tutti i biglietti legati all'evento cancellato siano rimossi\n
+	}\n
+  \n
+	@Test\n
+	public void testValiditaDatiEvento() {\n
+		try {\n
+			system.addEvent(\"125\", new Event(\"\", new Date())); // Nome evento vuoto, dovrebbe lanciare un'eccezione\n
+			fail(\"Avrebbe dovuto lanciare un'eccezione per nome evento non valido.\");\n
+		} catch (IllegalArgumentException e) {\n
+			// Test passato, l'eccezione è stata catturata\n
+		}\n
+	}\n
+  \n
+	@Test\n
+	public void testCapacitaEventoSuperata() {\n
+		Event piccoloConcerto = new Event(\"Piccolo Concerto\", new Date(), 2); // evento con capacità limitata\n
+		system.addEvent(\"126\", piccoloConcerto);\n
+		assertTrue(system.reserveTicket(\"utente4\", \"126\"));\n
+		assertTrue(system.reserveTicket(\"utente5\", \"126\"));\n
+		assertFalse(system.reserveTicket(\"utente6\", \"126\")); // Non ci sono più posti disponibili\n
+	}\n
+  \n
+	@Test\n
+	public void testEsaurimentoTipoBiglietto() {\n
+		system.addEvent(\"127\", new Event(\"Fiera\", new Date(), 10));\n
+		assertTrue(system.reserveTicket(\"utente7\", \"127\")); // Solo 1 biglietto VIP disponibile\n
+		assertTrue(system.reserveTicket(\"utente8\", \"127\")); // Biglietti VIP esauriti\n
+		assertTrue(system.reserveTicket(\"utente9\", \"127\")); // Biglietti standard ancora disponibili\n
+	}\n"

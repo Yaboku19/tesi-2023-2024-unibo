@@ -31,6 +31,7 @@ public class ElaboratorImpl implements Elaborator {
         if (interfaceClass != "") {
             content.append(interfaceClassQuestion(interfaceClass));
         }
+        String moreInformation = "";
         if (!logMap.isEmpty()) {
             if (areSimilar(this.previousClassJava, classJava, THRESHOLD)) {
                 counter++;
@@ -39,11 +40,13 @@ public class ElaboratorImpl implements Elaborator {
                 counter = 0;
             }
             if (counter < MAX_SIMILARITY) {
-                content.append(classJavaQuestion(classJava));
+                /*content.append(classJavaQuestion(classJava));
                 content.append(logMapQuestion(logMap));
+                moreInformation = "\n you have to improve the previous implementation in order to pass all the test. Put particolar attention on the failed tests." +
+                    " Read the comment written near the failed test and change the implementation in order to follow the tips";*/
             }
         }
-        content.append("\n'\n").append(defaultQuestion);
+        content.append("\n'\n").append(defaultQuestion).append(moreInformation);
         return content.toString();
     }
 
@@ -96,7 +99,7 @@ public class ElaboratorImpl implements Elaborator {
 
     private String supporterClassQuestion(final String supporterClass) {
         final StringBuilder content = new StringBuilder();
-        content.append("\n'\nGiven the following support class:\n'\n").append(supporterClass);
+        content.append("\n'\nGiven the following support class, it is already exist, you don't have to write it:\n'\n").append(supporterClass);
         return content.toString();
     }
 
